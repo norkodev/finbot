@@ -1,0 +1,3 @@
+# Finbot
+
+Financial bot project.
