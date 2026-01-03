@@ -303,10 +303,77 @@ Agregar soporte para HSBC y poder consultar datos básicos via CLI.
 
 ---
 
-## Sprint 3 (Semanas 5-6): Clasificación Inteligente
+## Sprint 3 (Semanas 5-6): Clasificación Inteligente + Cobertura de Bancos
 
 ### Objetivo
-Clasificar transacciones automáticamente con reglas y LLM.
+Clasificar transacciones automáticamente y completar extractores para todos los bancos (Banamex, Banorte, Liverpool).
+
+---
+
+### E1-US13: Parser de PDF Banamex - Joy
+**Como** usuario  
+**Quiero** extraer información de mis estados de cuenta Banamex Joy  
+**Para** soportar este producto
+
+**Criterios de Aceptación:**
+- [x] Extrae resumen, transacciones y MSI
+- [x] Formato específico Joy identificado
+
+**Estimación:** 3 horas
+
+---
+
+### E1-US14: Parser de PDF Banamex - Clásica
+**Como** usuario  
+**Quiero** extraer información de mis estados de cuenta Banamex Clásica  
+**Para** soportar este producto
+
+**Criterios de Aceptación:**
+- [x] Extrae resumen, transacciones y MSI
+- [x] Integrado con extractor unificado Banamex
+
+**Estimación:** 3 horas
+
+---
+
+### E1-US15: Parser de PDF Banorte
+**Como** usuario  
+**Quiero** extraer información de mis estados de cuenta Banorte  
+**Para** tener visión completa
+
+**Criterios de Aceptación:**
+- [x] Extracción 100% de datos (la más completa)
+- [x] Soporte detallado para Balance Transfers (intereses, IVA, tasa)
+- [x] Soporte para Convenience Checks
+
+**Estimación:** 3 horas
+
+---
+
+### E1-US16: Parser de PDF Liverpool TDC (OCR)
+**Como** usuario  
+**Quiero** procesar estados de cuenta de Liverpool Crédito  
+**Para** gestionar mi tarjeta departamental
+
+**Criterios de Aceptación:**
+- [x] Solución OCR implementada (pytesseract)
+- [x] Maneja codificación no estándar del PDF
+- [x] Extrae transacciones y MSI
+
+**Estimación:** 4 horas
+
+---
+
+### E1-US17: Parser de PDF Liverpool TDD (OCR)
+**Como** usuario  
+**Quiero** procesar estados de cuenta de Liverpool Débito  
+**Para** gestionar mi cuenta de nómina/débito
+
+**Criterios de Aceptación:**
+- [x] Solución OCR implementada
+- [x] Extrae depósitos, retiros y saldos
+
+**Estimación:** 2 horas
 
 ---
 
@@ -316,13 +383,13 @@ Clasificar transacciones automáticamente con reglas y LLM.
 **Para** categorizar rápido y con alta precisión los casos conocidos
 
 **Criterios de Aceptación:**
-- [ ] Reglas definidas en archivo YAML
-- [ ] Matching por regex en descripción normalizada
-- [ ] Soporte para múltiples patrones por categoría
-- [ ] Prioridad de reglas (más específica gana)
-- [ ] Categorías: alimentación, transporte, entretenimiento, etc.
-- [ ] Subcategorías: supermercado, restaurantes, delivery, etc.
-- [ ] Reglas especiales para intereses, comisiones, pagos
+- [x] Reglas definidas en archivo YAML
+- [x] Matching por regex en descripción normalizada
+- [x] Soporte para múltiples patrones por categoría
+- [x] Prioridad de reglas (más específica gana)
+- [x] Categorías: alimentación, transporte, entretenimiento, etc.
+- [x] Subcategorías: supermercado, restaurantes, delivery, etc.
+- [x] Reglas especiales para intereses, comisiones, pagos
 
 **Estructura de regla:**
 ```yaml
@@ -348,11 +415,11 @@ rules:
 **Para** clasificar consistentemente y aprender de correcciones
 
 **Criterios de Aceptación:**
-- [ ] Tabla `merchants` con: name, normalized_name, category, subcategory
-- [ ] Aliases para variaciones (OXXO, OXXO HDA, OXXO EXPRESS)
+- [x] Tabla `merchants` con: name, normalized_name, category, subcategory
+- [x] Aliases para variaciones (OXXO, OXXO HDA, OXXO EXPRESS)
 - [ ] Flag `is_subscription` para suscripciones
 - [ ] Flag `is_recurring` para gastos recurrentes
-- [ ] Actualización automática al corregir clasificación
+- [x] Actualización automática al corregir clasificación
 
 **Estimación:** 3 horas
 

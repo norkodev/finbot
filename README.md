@@ -94,29 +94,60 @@ Transactions: 18
 Installment plans: 5
 ```
 
-### Production Usage
+### Production Setup & Usage
 
-For recurring monthly processing, organize statements by year and month:
+For recurring monthly processing (2-3 times/month), we recommend the following folder structure:
 
-```bash
-# Recommended folder structure
-data/statements/
-├── 2026/
-│   ├── 01-enero/
-│   │   ├── BBVA_TDC_20260115.pdf
-│   │   ├── HSBC_TDC_20260120.pdf
-│   │   └── ...
-│   ├── 02-febrero/
-│   └── ...
-
-# Process monthly statements
-fin process data/statements/2026/01-enero/
-
-# Process entire year
-fin process data/statements/2026/
+```
+finbot/
+├── data/
+│   ├── statements/              # Main statements folder
+│   │   ├── 2026/
+│   │   │   ├── 01-enero/
+│   │   │   │   ├── BBVA_TDC_20260115.pdf
+│   │   │   │   ├── HSBC_TDC_20260120.pdf
+│   │   │   │   ├── BANAMEX_CLASICA_20260119.pdf
+│   │   │   │   └── ...
+│   │   │   ├── 02-febrero/
+│   │   │   └── ...
+│   │   └── 2027/
+│   ├── examples/                # For dev/testing only
+│   └── temp/                    # Temporary OCR files
+└── fin.db                       # SQLite Database
 ```
 
-See [`PRODUCTION_SETUP.md`](PRODUCTION_SETUP.md) for detailed workflow and automation options.
+#### Recommended Workflow
+
+1.  **Download Statements**: Download PDFs from your banks and place them in the corresponding month folder (e.g., `data/statements/2026/01-enero/`).
+    *   *Naming Convention*: `BANK_TYPE_YYYYMMDD.pdf` (e.g., `BBVA_TDC_20260115.pdf`)
+
+2.  **Process Statements**:
+    ```bash
+    # Process specific month
+    fin process data/statements/2026/01-enero/
+    
+    # Or processed entire year
+    fin process data/statements/2026/
+    ```
+
+3.  **Review Data**:
+    ```bash
+    fin transactions --month 2026-01
+    fin summary --month 2026-01
+    fin msi --ending-soon 3
+    ```
+
+#### Estimated Cut-off Dates
+*   **HSBC, Banamex Joy, Banorte**: ~15-17th of the month (Process on the 20th)
+*   **BBVA, Banamex Clásica**: ~19-20th of the month (Process on the 25th)
+*   **Liverpool**: Variable
+
+#### Automation
+You can set up a cron job to check for new files periodically:
+
+```bash
+0 9 20 * * /path/to/process_monthly.sh
+```
 
 ### Querying Data
 
