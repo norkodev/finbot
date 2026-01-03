@@ -29,7 +29,7 @@ htmlcov/
 data/database/*.db
 data/database/*.db-*
 data/statements/*.pdf
-!data/examples/
+data/examples/*.pdf
 
 # OS
 .DS_Store
