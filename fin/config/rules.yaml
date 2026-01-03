@@ -1,86 +1,109 @@
 rules:
   # Alimentación
-  - pattern: "UBER.*EATS|DIDI.*FOOD|RAPPI"
-    category: "alimentacion"
-    subcategory: "delivery"
+  - pattern: 'UBER.*EATS|DIDI.*FOOD|RAPPI'
+    category: 'alimentacion'
+    subcategory: 'delivery'
     priority: 20
 
-  - pattern: "SUPER|WALMART|SORIANA|CHEDRAUI|COSTCO|SAMS|FRESKO|LA COMER|HEB|CITY MARKET"
-    category: "alimentacion"
-    subcategory: "supermercado"
+  - pattern: 'SUPER|WALMART|SORIANA|CHEDRAUI|COSTCO|SAMS|FRESKO|LA COMER|HEB|CITY MARKET'
+    category: 'alimentacion'
+    subcategory: 'supermercado'
     priority: 10
 
-  - pattern: "OXXO|7 ELEVEN|CIRCLE K|TIENDA 3 B|MINI SUPER"
-    category: "gastos_hormiga"
-    subcategory: "conveniencia"
+  - pattern: 'OXXO|7 ELEVEN|CIRCLE K|TIENDA 3 B|MINI SUPER'
+    category: 'gastos_hormiga'
+    subcategory: 'conveniencia'
     priority: 10
 
-  - pattern: "STARBUCKS|CAFE|TIM HORTONS|CIELITO"
-    category: "alimentacion"
-    subcategory: "cafe"
+  - pattern: 'STARBUCKS|CAFE|TIM HORTONS|CIELITO'
+    category: 'alimentacion'
+    subcategory: 'cafe'
     priority: 15
 
-  - pattern: "RESTAURANTE|VIPS|TOKS|BISQUETS|BURGER KING|MCDONALDS|DOMINOS|PIZZA|TACOS|SUSHI"
-    category: "alimentacion"
-    subcategory: "restaurantes"
+  - pattern: 'RESTAURANTE|VIPS|TOKS|BISQUETS|BURGER KING|MCDONALDS|DOMINOS|PIZZA|TACOS|SUSHI'
+    category: 'alimentacion'
+    subcategory: 'restaurantes'
     priority: 5
 
   # Transporte
-  - pattern: "UBER|DIDI|CABIFY|BEAT"
-    category: "transporte"
-    subcategory: "rideshare"
+  - pattern: 'UBER|DIDI|CABIFY|BEAT'
+    category: 'transporte'
+    subcategory: 'rideshare'
     priority: 5
 
-  - pattern: "GASOLINERA|GAS|PEMEX|BP |SHELL|MOBIL|G500"
-    category: "transporte"
-    subcategory: "gasolina"
+  - pattern: 'GASOLINERA|GAS|PEMEX|BP |SHELL|MOBIL|G500'
+    category: 'transporte'
+    subcategory: 'gasolina'
     priority: 10
   
-  - pattern: "TAG|PASE|TELEVIA"
-    category: "transporte"
-    subcategory: "peaje"
+  - pattern: 'TAG|PASE|TELEVIA'
+    category: 'transporte'
+    subcategory: 'peaje'
     priority: 10
 
   # Servicios
-  - pattern: "CFE|LUZ Y FUERZA|AGUA|SACMEX|GAS NATURAL|NATURGY"
-    category: "servicios"
-    subcategory: "basicos"
+  - pattern: 'CFE|LUZ Y FUERZA|AGUA|SACMEX|GAS NATURAL|NATURGY'
+    category: 'servicios'
+    subcategory: 'basicos'
     priority: 10
 
-  - pattern: "TELCEL|AT&T|MOVISTAR|IZZI|TELMEX|TOTALPLAY|MEGACABLE"
-    category: "servicios"
-    subcategory: "telecom"
+  - pattern: 'TELCEL|AT&T|MOVISTAR|IZZI|TELMEX|TOTALPLAY|MEGACABLE'
+    category: 'servicios'
+    subcategory: 'telecom'
     priority: 10
 
   # Entretenimiento
-  - pattern: "NETFLIX|SPOTIFY|APPLE|DISNEY|HBO|PRIME VIDEO|YOUTUBE|HBOMAX|PARAMOUNT"
-    category: "entretenimiento"
-    subcategory: "streaming"
+  - pattern: 'NETFLIX|SPOTIFY|APPLE|DISNEY|HBO|PRIME VIDEO|YOUTUBE|HBOMAX|PARAMOUNT'
+    category: 'entretenimiento'
+    subcategory: 'streaming'
     priority: 15
 
-  - pattern: "CINEPOLIS|CINEMEX"
-    category: "entretenimiento"
-    subcategory: "cine"
+  - pattern: 'CINEPOLIS|CINEMEX'
+    category: 'entretenimiento'
+    subcategory: 'cine'
     priority: 15
 
   # Salud
-  - pattern: "FARMACIA|SAN PABLO|BENAVIDES|GUADALAJARA|AHORRO"
-    category: "salud"
-    subcategory: "farmacia"
+  - pattern: 'FARMACIA|SAN PABLO|BENAVIDES|GUADALAJARA|AHORRO'
+    category: 'salud'
+    subcategory: 'farmacia'
     priority: 10
   
   - pattern: 'DOCTOR|DR\.|MEDICO|HOSPITAL|CLINICA|LABORATORIO|CHOPO'
-    category: "salud"
-    subcategory: "medico"
+    category: 'salud'
+    subcategory: 'medico'
     priority: 10
 
   # Compras
-  - pattern: "AMAZON|MERCADO LIBRE|MLIBRE|PAYPAL"
-    category: "compras"
-    subcategory: "online"
+  - pattern: 'AMAZON|MERCADO LIBRE|MLIBRE|PAYPAL'
+    category: 'compras'
+    subcategory: 'online'
     priority: 5
 
-  - pattern: "ZARA|H&M|BERSHKA|PULL&BEAR|LIVERPOOL|PALACIO|SEARS"
-    category: "compras"
-    subcategory: "ropa_tiendas"
+  - pattern: 'ZARA|H&M|BERSHKA|PULL&BEAR|LIVERPOOL|PALACIO|SEARS'
+    category: 'compras'
+    subcategory: 'ropa_tiendas'
     priority: 10
+
+  # Pagos y Transferencias
+  - pattern: 'PAGO INTERBANCARIO|TRANSFERENCIA|SPEI|TRASPASO'
+    category: 'pagos'
+    subcategory: 'transferencia'
+    priority: 15
+
+  # Intereses y Comisiones
+  - pattern: 'INTERES|INTERESES'
+    category: 'financiero'
+    subcategory: 'intereses'
+    priority: 20
+
+  - pattern: 'COMISION|ANUALIDAD|PENALIZACION'
+    category: 'financiero'
+    subcategory: 'comisiones'
+    priority: 20
+
+  # Efectivo y Retiros
+  - pattern: 'DISPOSICION EFECTIVO|RETIRO ATM|CAJERO'
+    category: 'financiero'
+    subcategory: 'retiro_efectivo'
+    priority: 15

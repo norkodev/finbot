@@ -2,6 +2,7 @@
 
 from .bbva import BBVAExtractor
 from .hsbc import HSBCExtractor
+from .banamex import BanamexExtractor
 from typing import Optional
 
 
@@ -12,6 +13,7 @@ class BankDetector:
         """Initialize detector with all available extractors."""
         self.extractors = [
             HSBCExtractor(),
+            BanamexExtractor(),
             BBVAExtractor(),
         ]
     
