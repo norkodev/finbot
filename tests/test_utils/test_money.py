@@ -21,7 +21,7 @@ def test_parse_amount_negative():
 def test_parse_amount_zero():
     """Test parsing zero and dashes."""
     assert parse_amount("-") == Decimal("0")
-    assert parse_amount("") == Decimal("0")
+    assert parse_amount("   ") == Decimal("0")  # Whitespace becomes zero
     assert parse_amount("$0.00") == Decimal("0")
 
 
