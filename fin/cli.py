@@ -113,6 +113,11 @@ def process(directory, force):
                     
                     session.commit()
                     
+                    # Detect duplicates and reversals
+                    from fin.utils.duplicates import detect_all
+                    detection_results = detect_all(session, statement.id)
+                    session.commit()
+                    
                     # Display results
                     console.print(f"\n[green]✓ {pdf_file.name}[/green]")
                     console.print(f"  [dim]Bank: {extractor.bank_name.upper()}[/dim]")
@@ -120,6 +125,8 @@ def process(directory, force):
                     console.print(f"  [cyan]✓ Summary extracted[/cyan]")
                     console.print(f"  [cyan]✓ {len(transactions)} transactions[/cyan]")
                     console.print(f"  [cyan]✓ {len(installments)} installment plans[/cyan]")
+                    if detection_results['total_flagged'] > 0:
+                        console.print(f"  [yellow]⚠ {detection_results['duplicates']} duplicates, {detection_results['reversals']} reversals flagged[/yellow]")
                     
                     total_processed += 1
                     total_statements += 1
