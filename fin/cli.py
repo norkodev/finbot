@@ -11,6 +11,7 @@ from pathlib import Path
 from fin import __version__
 from fin.models import init_db, get_session, ProcessingLog, Statement, Transaction, InstallmentPlan
 from fin.extractors import BankDetector
+from fin.classification import TransactionClassifier
 
 
 console = Console()
@@ -43,6 +44,7 @@ def process(directory, force):
         return
     
     detector = BankDetector()
+    classifier = TransactionClassifier()
     session = get_session()
     
     total_processed = 0
@@ -86,6 +88,9 @@ def process(directory, force):
                         progress.advance(task)
                         continue
                     
+                    # Classify transactions
+                    classified_count = classifier.classify_batch(session, transactions)
+                    
                     # Save to database
                     session.add(statement)
                     session.flush()  # Get statement ID
@@ -123,7 +128,7 @@ def process(directory, force):
                     console.print(f"  [dim]Bank: {extractor.bank_name.upper()}[/dim]")
                     console.print(f"  [dim]Period: {statement.period_start} to {statement.period_end}[/dim]")
                     console.print(f"  [cyan]✓ Summary extracted[/cyan]")
-                    console.print(f"  [cyan]✓ {len(transactions)} transactions[/cyan]")
+                    console.print(f"  [cyan]✓ {len(transactions)} transactions ({classified_count} classified)[/cyan]")
                     console.print(f"  [cyan]✓ {len(installments)} installment plans[/cyan]")
                     if detection_results['total_flagged'] > 0:
                         console.print(f"  [yellow]⚠ {detection_results['duplicates']} duplicates, {detection_results['reversals']} reversals flagged[/yellow]")

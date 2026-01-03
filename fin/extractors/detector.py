@@ -11,8 +11,8 @@ class BankDetector:
     def __init__(self):
         """Initialize detector with all available extractors."""
         self.extractors = [
-            BBVAExtractor(),
             HSBCExtractor(),
+            BBVAExtractor(),
         ]
     
     def detect(self, file_path: str) -> Optional:
