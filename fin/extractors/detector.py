@@ -1,6 +1,7 @@
 """Bank detector for automatic bank identification."""
 
 from .bbva import BBVAExtractor
+from .hsbc import HSBCExtractor
 from typing import Optional
 
 
@@ -11,8 +12,7 @@ class BankDetector:
         """Initialize detector with all available extractors."""
         self.extractors = [
             BBVAExtractor(),
-            # Add more extractors here as they're implemented
-            # HSBCExtractor(),
+            HSBCExtractor(),
         ]
     
     def detect(self, file_path: str) -> Optional:
