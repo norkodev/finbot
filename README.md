@@ -4,11 +4,13 @@ Financial intelligence system for personal finance management, featuring automat
 
 ## Features (Sprint 1)
 
-- 📄 **Automated PDF Parsing**: Extract data from BBVA bank statements
-- 💳 **Transaction Management**: Track regular transactions and installment plans (MSI)
+- 📄 **Automated PDF Parsing**: Support for **BBVA** and **HSBC** bank statements
+- 💳 **Transaction Management**: Track regular transactions, installment plans, and balance transfers
 - 🗃️ **SQLite Database**: Local storage with SQLAlchemy ORM
-- 🔄 **Idempotent Processing**: Safely reprocess files without duplicates
-- 🎨 **Beautiful CLI**: Rich terminal interface with progress tracking
+- 🔍 **Smart Queries**: Filter transactions, view monthly summaries, and track MSI
+- 🧹 **Text Normalization**: Automatic cleaning of merchant names and descriptions
+- 🔄 **Idempotent Processing**: Safely reprocess files detecting duplicates and reversals
+- 🎨 **Beautiful CLI**: Rich terminal interface with tables and progress tracking
 
 ## Installation
 
@@ -88,6 +90,40 @@ Transactions: 18
 Installment plans: 5
 ```
 
+### Querying Data
+
+Finbot provides powerful commands to explore your financial data:
+
+#### 1. List Transactions
+View transactions with optional filters:
+
+```bash
+# View transactions for a specific month
+fin transactions --month 2025-12
+
+# Filter by category (future feature) or amount
+fin transactions --min-amount 1000 --limit 10
+```
+
+#### 2. Monthly Summary
+Get a high-level overview of your finances for a month:
+
+```bash
+fin summary --month 2025-12
+```
+Displays total expenses, payments, interest charged, fees, and MSI payments.
+
+#### 3. Installment Plans (MSI)
+Track your active installment plans and balance transfers:
+
+```bash
+# List all active plans
+fin msi
+
+# Show plans ending in the next 3 months
+fin msi --ending-soon 3
+```
+
 ## Project Structure
 
 ```
@@ -127,7 +163,7 @@ The system uses SQLite with the following main tables:
 ## Roadmap
 
 - **Sprint 1**: ✅ Setup + BBVA Parser
-- **Sprint 2**: HSBC Parser + Basic Queries
+- **Sprint 2**: ✅ HSBC Parser + Basic Queries
 - **Sprint 3**: Intelligent Classification (Rules + LLM)
 - **Sprint 4**: Derived Documents + Vectorization
 - **Sprint 5**: RAG + Chat Interface

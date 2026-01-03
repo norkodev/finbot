@@ -231,12 +231,12 @@ Agregar soporte para HSBC y poder consultar datos básicos via CLI.
 **Para** tener visión completa de mis finanzas
 
 **Criterios de Aceptación:**
-- [ ] Extrae resumen (mismos campos que BBVA)
-- [ ] Extrae transacciones regulares
-- [ ] Extrae MSI con intereses (Transferencias de saldo)
-- [ ] Identifica comisiones (PENALIZACION POR PAGO TARDIO)
-- [ ] Identifica intereses desglosados (SUJETOS/NO SUJETOS A IVA)
-- [ ] Extrae información de pagos SPEI recibidos
+- [x] Extrae resumen (mismos campos que BBVA)
+- [x] Extrae transacciones regulares
+- [x] Extrae MSI con intereses (Transferencias de saldo)
+- [x] Identifica comisiones (PENALIZACION POR PAGO TARDIO)
+- [x] Identifica intereses desglosados (SUJETOS/NO SUJETOS A IVA)
+- [x] Extrae información de pagos SPEI recibidos
 
 **Notas técnicas:**
 - HSBC tiene formato diferente a BBVA
@@ -253,12 +253,12 @@ Agregar soporte para HSBC y poder consultar datos básicos via CLI.
 **Para** facilitar matching y clasificación
 
 **Criterios de Aceptación:**
-- [ ] Convierte a mayúsculas
-- [ ] Remueve acentos
-- [ ] Colapsa espacios múltiples
-- [ ] Extrae información de tarjeta digital (***3141)
-- [ ] Extrae número de pago MSI de descripción
-- [ ] Limpia caracteres especiales
+- [x] Convierte a mayúsculas
+- [x] Remueve acentos
+- [x] Colapsa espacios múltiples
+- [x] Extrae información de tarjeta digital (***3141)
+- [x] Extrae número de pago MSI de descripción
+- [x] Limpia caracteres especiales
 
 **Ejemplos:**
 ```
@@ -277,12 +277,12 @@ Agregar soporte para HSBC y poder consultar datos básicos via CLI.
 **Para** verificar que los datos se extrajeron correctamente
 
 **Criterios de Aceptación:**
-- [ ] `fin transactions --month 2025-12` lista transacciones
-- [ ] `fin transactions --category comida` filtra por categoría
-- [ ] `fin summary --month 2025-12` muestra resumen del mes
-- [ ] `fin msi` lista todos los MSI activos
-- [ ] `fin msi --ending-soon 3` muestra MSI que terminan en 3 meses
-- [ ] Output formateado en tabla legible
+- [x] `fin transactions --month 2025-12` lista transacciones
+- [x] `fin transactions --category comida` filtra por categoría
+- [x] `fin summary --month 2025-12` muestra resumen del mes
+- [x] `fin msi` lista todos los MSI activos
+- [x] `fin msi --ending-soon 3` muestra MSI que terminan en 3 meses
+- [x] Output formateado en tabla legible
 
 **Estimación:** 4 horas
 
@@ -294,10 +294,10 @@ Agregar soporte para HSBC y poder consultar datos básicos via CLI.
 **Para** no contar doble ni mostrar datos incorrectos
 
 **Criterios de Aceptación:**
-- [ ] Detecta mismo monto + misma fecha + mismo comercio
-- [ ] Detecta pares cargo/abono que se cancelan
-- [ ] Flag `is_reversal` para transacciones canceladas
-- [ ] No suma reversiones en totales
+- [x] Detecta mismo monto + misma fecha + mismo comercio
+- [x] Detecta pares cargo/abono que se cancelan
+- [x] Flag `is_reversal` para transacciones canceladas
+- [x] No suma reversiones en totales
 
 **Estimación:** 3 horas
 
