@@ -1,0 +1,6 @@
+database:
+  path: "./data/database/finanzas.db"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
