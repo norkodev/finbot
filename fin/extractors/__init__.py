@@ -4,6 +4,7 @@ from .base import BaseExtractor
 from .bbva import BBVAExtractor
 from .hsbc import HSBCExtractor
 from .banamex import BanamexExtractor
+from .banorte import BanorteExtractor
 from .detector import BankDetector
 
 __all__ = [
@@ -11,5 +12,6 @@ __all__ = [
     'BBVAExtractor',
     'HSBCExtractor',
     'BanamexExtractor',
+    'BanorteExtractor',
     'BankDetector',
 ]
