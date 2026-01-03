@@ -6,7 +6,12 @@ from .text import (
     normalize_description,
     extract_card_digits,
     extract_installment_info,
-    clean_merchant_name
+    clean_merchant_name,
+    extract_merchant_name,
+    detect_payment_type,
+    is_interest_charge,
+    is_fee_charge,
+    extract_location_code,
 )
 
 __all__ = [
@@ -19,4 +24,10 @@ __all__ = [
     'extract_card_digits',
     'extract_installment_info',
     'clean_merchant_name',
+    'extract_merchant_name',
+    'detect_payment_type',
+    'is_interest_charge',
+    'is_fee_charge',
+    'extract_location_code',
 ]
+
