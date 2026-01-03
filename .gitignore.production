@@ -1,0 +1,15 @@
+# Datos de producción
+data/statements/2*/
+!data/statements/.gitkeep
+
+# Backups de base de datos
+*.backup.*
+fin.db.backup*
+
+# Temporales OCR
+data/temp/*
+!data/temp/.gitkeep
+
+# SQLite database (comentar si deseas versionarla)
+# fin.db
+fin.db-journal

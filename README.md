@@ -2,15 +2,19 @@
 
 Financial intelligence system for personal finance management, featuring automated bank statement parsing, transaction classification, and AI-powered insights.
 
-## Features (Sprint 1)
+## Features
 
-- 📄 **Automated PDF Parsing**: Support for **BBVA** and **HSBC** bank statements
+- 📄 **Automated PDF Parsing**: Support for **7 banks** (BBVA, HSBC, Banamex, Banorte, Liverpool x2)
+  - Standard text extraction for BBVA, HSBC, Banamex, Banorte
+  - **OCR support** for Liverpool (pytesseract + pdf2image)
 - 💳 **Transaction Management**: Track regular transactions, installment plans, and balance transfers
 - 🗃️ **SQLite Database**: Local storage with SQLAlchemy ORM
 - 🔍 **Smart Queries**: Filter transactions, view monthly summaries, and track MSI
 - 🧹 **Text Normalization**: Automatic cleaning of merchant names and descriptions
 - 🔄 **Idempotent Processing**: Safely reprocess files detecting duplicates and reversals
 - 🎨 **Beautiful CLI**: Rich terminal interface with tables and progress tracking
+- 🤖 **Intelligent Classification**: 20 rule-based categories + merchant learning
+- 📂 **Production Ready**: Organized folder structure by year/month for recurring processing
 
 ## Installation
 
@@ -89,6 +93,30 @@ Statements: 1
 Transactions: 18
 Installment plans: 5
 ```
+
+### Production Usage
+
+For recurring monthly processing, organize statements by year and month:
+
+```bash
+# Recommended folder structure
+data/statements/
+├── 2026/
+│   ├── 01-enero/
+│   │   ├── BBVA_TDC_20260115.pdf
+│   │   ├── HSBC_TDC_20260120.pdf
+│   │   └── ...
+│   ├── 02-febrero/
+│   └── ...
+
+# Process monthly statements
+fin process data/statements/2026/01-enero/
+
+# Process entire year
+fin process data/statements/2026/
+```
+
+See [`PRODUCTION_SETUP.md`](PRODUCTION_SETUP.md) for detailed workflow and automation options.
 
 ### Querying Data
 

@@ -4,6 +4,7 @@ from .bbva import BBVAExtractor
 from .hsbc import HSBCExtractor
 from .banamex import BanamexExtractor
 from .banorte import BanorteExtractor
+from .liverpool import LiverpoolCreditExtractor, LiverpoolDebitExtractor
 from typing import Optional
 
 
@@ -16,6 +17,8 @@ class BankDetector:
             HSBCExtractor(),
             BanamexExtractor(),
             BanorteExtractor(),
+            LiverpoolCreditExtractor(),
+            LiverpoolDebitExtractor(),
             BBVAExtractor(),
         ]
     
