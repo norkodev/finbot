@@ -11,6 +11,7 @@ from pathlib import Path
 from fin import __version__
 from fin.models import init_db, get_session, ProcessingLog, Statement, Transaction, InstallmentPlan
 from fin.extractors import BankDetector
+from fin.classification import TransactionClassifier
 
 
 console = Console()
@@ -43,6 +44,7 @@ def process(directory, force):
         return
     
     detector = BankDetector()
+    classifier = TransactionClassifier()
     session = get_session()
     
     total_processed = 0
@@ -86,6 +88,9 @@ def process(directory, force):
                         progress.advance(task)
                         continue
                     
+                    # Classify transactions
+                    classified_count = classifier.classify_batch(session, transactions)
+                    
                     # Save to database
                     session.add(statement)
                     session.flush()  # Get statement ID
@@ -123,7 +128,7 @@ def process(directory, force):
                     console.print(f"  [dim]Bank: {extractor.bank_name.upper()}[/dim]")
                     console.print(f"  [dim]Period: {statement.period_start} to {statement.period_end}[/dim]")
                     console.print(f"  [cyan]✓ Summary extracted[/cyan]")
-                    console.print(f"  [cyan]✓ {len(transactions)} transactions[/cyan]")
+                    console.print(f"  [cyan]✓ {len(transactions)} transactions ({classified_count} classified)[/cyan]")
                     console.print(f"  [cyan]✓ {len(installments)} installment plans[/cyan]")
                     if detection_results['total_flagged'] > 0:
                         console.print(f"  [yellow]⚠ {detection_results['duplicates']} duplicates, {detection_results['reversals']} reversals flagged[/yellow]")
@@ -426,6 +431,64 @@ def msi(ending_soon, with_interest):
         
     finally:
         session.close()
+
+
+
+@cli.command()
+@click.option('--limit', default=10, help='Maximum transactions to review')
+def correct(limit):
+    """
+    Interactively correct transaction classifications.
+    
+    Reviews unclassified or low-confidence transactions and allows
+    manual categorization. Corrections teach the system for future.
+    """
+    from fin.cli_correct import correct_transactions
+    correct_transactions(limit)
+
+
+@cli.command()
+@click.option('--months-back', default=3, help='Check activity in last N months')
+def subscriptions(months_back):
+    """
+    List active subscriptions and recurring payments.
+    
+    Detects recurring charges based on merchant, amount, and frequency patterns.
+    """
+    from fin.analysis import get_active_subscriptions
+    
+    session = get_session()
+    subs = get_active_subscriptions(session, months_back=months_back)
+    
+    if not subs:
+        console.print("[yellow]No subscriptions detected[/yellow]")
+        return
+    
+    # Calculate totals
+    total_monthly = sum(s['average_amount'] for s in subs)
+    
+    # Display table
+    table = Table(title=f"Active Subscriptions (last {months_back} months)")
+    table.add_column("Merchant", style="cyan")
+    table.add_column("Amount", justify="right", style="green")
+    table.add_column("Frequency", style="yellow")
+    table.add_column("Count", justify="right")
+    table.add_column("Last Payment", style="dim")
+    
+    for sub in subs:
+        marker = "⭐" if sub['is_known_subscription'] else ""
+        table.add_row(
+            f"{marker} {sub['merchant_name']}",
+            f"${sub['average_amount']:,.2f}",
+            sub['frequency'],
+            str(sub['count']),
+            sub['last_payment'].strftime('%Y-%m-%d')
+        )
+    
+    console.print(table)
+    console.print(f"\n[bold]Total Monthly: ${total_monthly:,.2f}[/bold]")
+    
+    session.close()
 
 
 if __name__ == '__main__':

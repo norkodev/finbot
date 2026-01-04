@@ -2,15 +2,19 @@
 
 Financial intelligence system for personal finance management, featuring automated bank statement parsing, transaction classification, and AI-powered insights.
 
-## Features (Sprint 1)
+## Features
 
-- 📄 **Automated PDF Parsing**: Support for **BBVA** and **HSBC** bank statements
+- 📄 **Automated PDF Parsing**: Support for **7 banks** (BBVA, HSBC, Banamex, Banorte, Liverpool x2)
+  - Standard text extraction for BBVA, HSBC, Banamex, Banorte
+  - **OCR support** for Liverpool (pytesseract + pdf2image)
 - 💳 **Transaction Management**: Track regular transactions, installment plans, and balance transfers
+- 🧠 **AI Classification**: 3-tier classification system (History → Rules → LLM)
+  - **Local LLM**: Uses Ollama + Qwen2.5 restricted to Mexican context
+  - **Interactive Learning**: Teach the system with `fin correct`
+- 📅 **Subscription Detection**: Automatically finds recurring monthly payments
 - 🗃️ **SQLite Database**: Local storage with SQLAlchemy ORM
-- 🔍 **Smart Queries**: Filter transactions, view monthly summaries, and track MSI
-- 🧹 **Text Normalization**: Automatic cleaning of merchant names and descriptions
-- 🔄 **Idempotent Processing**: Safely reprocess files detecting duplicates and reversals
 - 🎨 **Beautiful CLI**: Rich terminal interface with tables and progress tracking
+- 📂 **Production Ready**: Organized folder structure by year/month
 
 ## Installation
 
@@ -18,6 +22,7 @@ Financial intelligence system for personal finance management, featuring automat
 
 - Python 3.9 or higher
 - conda (Anaconda or Miniconda)
+- Ollama (for AI classification)
 
 ### Setup
 
@@ -30,22 +35,42 @@ Financial intelligence system for personal finance management, featuring automat
 2. **Create conda environment**
    ```bash
    conda env create -f environment.yml
-   ```
-
-3. **Activate environment**
-   ```bash
    conda activate finbot
    ```
 
-4. **Install package**
+3. **Install System Dependencies** (Ubuntu/Debian)
+   ```bash
+   # OCR support (Liverpool)
+   sudo apt-get install tesseract-ocr tesseract-ocr-spa poppler-utils
+   
+   # Ollama (AI Model)
+   curl -fsSL https://ollama.com/install.sh | sh
+   ```
+
+4. **Setup AI Model**
+   ```bash
+   # Start Ollama service
+   sudo systemctl start ollama
+   
+   # Download model (4.7 GB)
+   ollama pull qwen2.5:7b
+   ```
+
+5. **Install Python Package**
    ```bash
    pip install -e .
    ```
 
-5. **Verify installation**
+6. **Verify installation**
    ```bash
    fin --version
    ```
+
+   > **Troubleshooting CLI**: If `fin` command is not found:
+   > 1. Ensure conda environment is active: `conda activate finbot`
+   > 2. Reinstall editable package: `pip install --force-reinstall -e .`
+   > 3. Check ~/.local/bin is in your PATH
+
 
 ## Usage
 
@@ -88,6 +113,61 @@ Files processed: 1
 Statements: 1
 Transactions: 18
 Installment plans: 5
+```
+
+### Production Setup & Usage
+
+For recurring monthly processing (2-3 times/month), we recommend the following folder structure:
+
+```
+finbot/
+├── data/
+│   ├── statements/              # Main statements folder
+│   │   ├── 2026/
+│   │   │   ├── 01-enero/
+│   │   │   │   ├── BBVA_TDC_20260115.pdf
+│   │   │   │   ├── HSBC_TDC_20260120.pdf
+│   │   │   │   ├── BANAMEX_CLASICA_20260119.pdf
+│   │   │   │   └── ...
+│   │   │   ├── 02-febrero/
+│   │   │   └── ...
+│   │   └── 2027/
+│   ├── examples/                # For dev/testing only
+│   └── temp/                    # Temporary OCR files
+└── fin.db                       # SQLite Database
+```
+
+#### Recommended Workflow
+
+1.  **Download Statements**: Download PDFs from your banks and place them in the corresponding month folder (e.g., `data/statements/2026/01-enero/`).
+    *   *Naming Convention*: `BANK_TYPE_YYYYMMDD.pdf` (e.g., `BBVA_TDC_20260115.pdf`)
+
+2.  **Process Statements**:
+    ```bash
+    # Process specific month
+    fin process data/statements/2026/01-enero/
+    
+    # Or processed entire year
+    fin process data/statements/2026/
+    ```
+
+3.  **Review Data**:
+    ```bash
+    fin transactions --month 2026-01
+    fin summary --month 2026-01
+    fin msi --ending-soon 3
+    ```
+
+#### Estimated Cut-off Dates
+*   **HSBC, Banamex Joy, Banorte**: ~15-17th of the month (Process on the 20th)
+*   **BBVA, Banamex Clásica**: ~19-20th of the month (Process on the 25th)
+*   **Liverpool**: Variable
+
+#### Automation
+You can set up a cron job to check for new files periodically:
+
+```bash
+0 9 20 * * /path/to/process_monthly.sh
 ```
 
 ### Querying Data

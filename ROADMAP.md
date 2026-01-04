@@ -303,10 +303,77 @@ Agregar soporte para HSBC y poder consultar datos básicos via CLI.
 
 ---
 
-## Sprint 3 (Semanas 5-6): Clasificación Inteligente
+## Sprint 3 (Semanas 5-6): Clasificación Inteligente + Cobertura de Bancos
 
 ### Objetivo
-Clasificar transacciones automáticamente con reglas y LLM.
+Clasificar transacciones automáticamente y completar extractores para todos los bancos (Banamex, Banorte, Liverpool).
+
+---
+
+### E1-US13: Parser de PDF Banamex - Joy
+**Como** usuario  
+**Quiero** extraer información de mis estados de cuenta Banamex Joy  
+**Para** soportar este producto
+
+**Criterios de Aceptación:**
+- [x] Extrae resumen, transacciones y MSI
+- [x] Formato específico Joy identificado
+
+**Estimación:** 3 horas
+
+---
+
+### E1-US14: Parser de PDF Banamex - Clásica
+**Como** usuario  
+**Quiero** extraer información de mis estados de cuenta Banamex Clásica  
+**Para** soportar este producto
+
+**Criterios de Aceptación:**
+- [x] Extrae resumen, transacciones y MSI
+- [x] Integrado con extractor unificado Banamex
+
+**Estimación:** 3 horas
+
+---
+
+### E1-US15: Parser de PDF Banorte
+**Como** usuario  
+**Quiero** extraer información de mis estados de cuenta Banorte  
+**Para** tener visión completa
+
+**Criterios de Aceptación:**
+- [x] Extracción 100% de datos (la más completa)
+- [x] Soporte detallado para Balance Transfers (intereses, IVA, tasa)
+- [x] Soporte para Convenience Checks
+
+**Estimación:** 3 horas
+
+---
+
+### E1-US16: Parser de PDF Liverpool TDC (OCR)
+**Como** usuario  
+**Quiero** procesar estados de cuenta de Liverpool Crédito  
+**Para** gestionar mi tarjeta departamental
+
+**Criterios de Aceptación:**
+- [x] Solución OCR implementada (pytesseract)
+- [x] Maneja codificación no estándar del PDF
+- [x] Extrae transacciones y MSI
+
+**Estimación:** 4 horas
+
+---
+
+### E1-US17: Parser de PDF Liverpool TDD (OCR)
+**Como** usuario  
+**Quiero** procesar estados de cuenta de Liverpool Débito  
+**Para** gestionar mi cuenta de nómina/débito
+
+**Criterios de Aceptación:**
+- [x] Solución OCR implementada
+- [x] Extrae depósitos, retiros y saldos
+
+**Estimación:** 2 horas
 
 ---
 
@@ -316,13 +383,13 @@ Clasificar transacciones automáticamente con reglas y LLM.
 **Para** categorizar rápido y con alta precisión los casos conocidos
 
 **Criterios de Aceptación:**
-- [ ] Reglas definidas en archivo YAML
-- [ ] Matching por regex en descripción normalizada
-- [ ] Soporte para múltiples patrones por categoría
-- [ ] Prioridad de reglas (más específica gana)
-- [ ] Categorías: alimentación, transporte, entretenimiento, etc.
-- [ ] Subcategorías: supermercado, restaurantes, delivery, etc.
-- [ ] Reglas especiales para intereses, comisiones, pagos
+- [x] Reglas definidas en archivo YAML
+- [x] Matching por regex en descripción normalizada
+- [x] Soporte para múltiples patrones por categoría
+- [x] Prioridad de reglas (más específica gana)
+- [x] Categorías: alimentación, transporte, entretenimiento, etc.
+- [x] Subcategorías: supermercado, restaurantes, delivery, etc.
+- [x] Reglas especiales para intereses, comisiones, pagos
 
 **Estructura de regla:**
 ```yaml
@@ -348,11 +415,11 @@ rules:
 **Para** clasificar consistentemente y aprender de correcciones
 
 **Criterios de Aceptación:**
-- [ ] Tabla `merchants` con: name, normalized_name, category, subcategory
-- [ ] Aliases para variaciones (OXXO, OXXO HDA, OXXO EXPRESS)
+- [x] Tabla `merchants` con: name, normalized_name, category, subcategory
+- [x] Aliases para variaciones (OXXO, OXXO HDA, OXXO EXPRESS)
 - [ ] Flag `is_subscription` para suscripciones
 - [ ] Flag `is_recurring` para gastos recurrentes
-- [ ] Actualización automática al corregir clasificación
+- [x] Actualización automática al corregir clasificación
 
 **Estimación:** 3 horas
 
@@ -364,15 +431,34 @@ rules:
 **Para** clasificar transacciones que no matchean reglas
 
 **Criterios de Aceptación:**
-- [ ] Ollama instalado y funcionando
-- [ ] Modelo descargado (deepseek-coder o llama3)
-- [ ] Script de prueba que hace una query simple
-- [ ] Documentación de instalación en README
-- [ ] Configuración de timeout y reintentos
+- [x] Ollama instalado y funcionando
+- [x] Modelo descargado (qwen2.5:7b)
+- [x] Script de prueba que hace una query simple  
+- [x] Documentación de instalación en README
+- [x] Configuración de timeout y reintentos
 
-**Notas:**
-- Con 16GB RAM, modelos de 7B-8B funcionan bien
-- DeepSeek-R1 7B o Llama 3 8B recomendados
+**Guía de Uso Ollama:**
+1. **Iniciar Servicio**: 
+   - Linux: `sudo systemctl start ollama`
+   - Manual: `ollama serve` (en terminal separada)
+2. **Verificar Estado**: 
+   - `systemctl status ollama`
+   - `curl http://localhost:11434/api/version`
+3. **Detener Servicio**: `sudo systemctl stop ollama`
+4. **Descargar Modelo**: `ollama pull qwen2.5:7b`
+5. **Ver Modelos**: `ollama list`
+
+**Nota Técnica**:
+- El bot usa timeout de 30s para no bloquear procesamiento.
+- El modelo se carga en memoria en la primera petición (puede tardar unos segundos).
+- Se recomienda GPU para mayor velocidad.
+
+**Instalación del CLI (`fin`):**
+Si el comando `fin` no se encuentra, asegúrate de instalar el paquete en modo editable:
+```bash
+pip install -e .
+```
+Esto creará el ejecutable `fin` en tu path.
 
 **Estimación:** 2 horas
 
@@ -384,13 +470,13 @@ rules:
 **Para** categorizar casos nuevos o ambiguos
 
 **Criterios de Aceptación:**
-- [ ] Solo se invoca si reglas no matchean
-- [ ] Prompt optimizado para clasificación
-- [ ] Respuesta parseada a categoría/subcategoría
-- [ ] Confidence score estimado
-- [ ] Batch de transacciones para eficiencia (max 20)
-- [ ] Cache de clasificaciones para no repetir
-- [ ] Timeout de 30 segundos por batch
+- [x] Solo se invoca si reglas no matchean
+- [x] Prompt optimizado para clasificación
+- [x] Respuesta parseada a categoría/subcategoría
+- [x] Confidence score estimado
+- [x] Batch de transacciones para eficiencia (max 20)
+- [x] Cache de clasificaciones para no repetir
+- [x] Timeout de 30 segundos por batch
 
 **Prompt ejemplo:**
 ```
@@ -415,11 +501,11 @@ Responde en JSON:
 **Para** entrenar al sistema con mis preferencias
 
 **Criterios de Aceptación:**
-- [ ] Comando: `fin correct`
-- [ ] Muestra transacciones sin clasificar o baja confianza
-- [ ] Permite asignar categoría manualmente
-- [ ] Guarda corrección en merchant catalog
-- [ ] Aplica a transacciones futuras del mismo comercio
+- [x] Comando: `fin correct`
+- [x] Muestra transacciones sin clasificar o baja confianza
+- [x] Permite asignar categoría manualmente
+- [x] Guarda corrección en merchant catalog
+- [x] Aplica a transacciones futuras del mismo comercio
 
 **Flujo:**
 ```
@@ -448,11 +534,11 @@ Transacciones por revisar (5):
 **Para** mostrar compromisos recurrentes al usuario
 
 **Criterios de Aceptación:**
-- [ ] Detecta mismo comercio + monto similar + periodicidad mensual
-- [ ] Mínimo 2 ocurrencias para marcar como suscripción
-- [ ] Lista de suscripciones conocidas (Netflix, Spotify, etc.)
-- [ ] Flag `is_subscription = true` en transacción
-- [ ] Comando `fin subscriptions` para listar
+- [x] Detecta mismo comercio + monto similar + periodicidad mensual
+- [x] Mínimo 2 ocurrencias para marcar como suscripción
+- [x] Lista de suscripciones conocidas (Netflix, Spotify, etc.)
+- [x] Flag `is_subscription = true` en transacción
+- [x] Comando `fin subscriptions` para listar
 
 **Estimación:** 3 horas
 

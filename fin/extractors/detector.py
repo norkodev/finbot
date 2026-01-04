@@ -2,6 +2,9 @@
 
 from .bbva import BBVAExtractor
 from .hsbc import HSBCExtractor
+from .banamex import BanamexExtractor
+from .banorte import BanorteExtractor
+from .liverpool import LiverpoolCreditExtractor, LiverpoolDebitExtractor
 from typing import Optional
 
 
@@ -11,8 +14,12 @@ class BankDetector:
     def __init__(self):
         """Initialize detector with all available extractors."""
         self.extractors = [
-            BBVAExtractor(),
             HSBCExtractor(),
+            BanamexExtractor(),
+            BanorteExtractor(),
+            LiverpoolCreditExtractor(),
+            LiverpoolDebitExtractor(),
+            BBVAExtractor(),
         ]
     
     def detect(self, file_path: str) -> Optional:
