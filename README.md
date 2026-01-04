@@ -12,6 +12,14 @@ Financial intelligence system for personal finance management, featuring automat
   - **Local LLM**: Uses Ollama + Qwen2.5 restricted to Mexican context
   - **Interactive Learning**: Teach the system with `fin correct`
 - 📅 **Subscription Detection**: Automatically finds recurring monthly payments
+- 📊 **Financial Reports**: Auto-generated markdown reports
+  - Monthly summaries with category breakdown
+  - Future commitments (MSI + subscriptions)
+  - Merchant spending profiles
+- 🔍 **Semantic Search**: RAG-ready vector search with ChromaDB
+  - Local embeddings (sentence-transformers)
+  - Document chunking and indexing
+  - Metadata filtering
 - 🗃️ **SQLite Database**: Local storage with SQLAlchemy ORM
 - 🎨 **Beautiful CLI**: Rich terminal interface with tables and progress tracking
 - 📂 **Production Ready**: Organized folder structure by year/month
@@ -202,6 +210,50 @@ fin msi
 
 # Show plans ending in the next 3 months
 fin msi --ending-soon 3
+```
+
+#### 4. Generate Financial Reports
+Create markdown reports for analysis:
+
+```bash
+# Generate reports for specific month
+fin reports --month 2025-12
+
+# Generate all reports (commitments + merchant profiles)
+fin reports
+```
+
+Reports are saved to `data/reports/`:
+- `summaries/YYYY-MM.md`: Monthly financial summary
+- `commitments.md`: Active MSI and subscriptions
+- `merchants/*.md`: Spending profiles per merchant
+
+#### 5. Manage Vector Index
+Index documents for semantic search (RAG):
+
+```bash
+# Rebuild entire index
+fin index --rebuild
+
+# Index specific month
+fin index --month 2025-12
+
+# View index stats
+fin index
+```
+
+#### 6. Interactive Classification Correction
+Teach the system with manual corrections:
+
+```bash
+fin correct --limit 10
+```
+
+#### 7. View Subscriptions
+See recurring monthly payments:
+
+```bash
+fin subscriptions --months-back 3
 ```
 
 ## Project Structure

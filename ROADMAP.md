@@ -37,12 +37,12 @@ Tener el ambiente funcional y poder extraer transacciones de un estado de cuenta
 **Para** poder comenzar a implementar el sistema
 
 **Criterios de Aceptación:**
-- [ ] Repositorio git inicializado con estructura de carpetas
-- [ ] Virtual environment de Python creado
-- [ ] Dependencias instaladas (pdfplumber, pandas, click, etc.)
-- [ ] SQLite database inicializada con esquema base
-- [ ] Comando `fin --version` funciona y muestra versión
-- [ ] README con instrucciones de setup
+- [x] Repositorio git inicializado con estructura de carpetas
+- [x] Virtual environment de Python creado
+- [x] Dependencias instaladas (pdfplumber, pandas, click, etc.)
+- [x] SQLite database inicializada con esquema base
+- [x] Comando `fin --version` funciona y muestra versión
+- [x] README con instrucciones de setup
 
 **Tareas:**
 1. Crear estructura de carpetas del proyecto
@@ -61,13 +61,13 @@ Tener el ambiente funcional y poder extraer transacciones de un estado de cuenta
 **Para** almacenar transacciones y compromisos de forma estructurada
 
 **Criterios de Aceptación:**
-- [ ] Tabla `statements` creada (metadata del estado de cuenta)
-- [ ] Tabla `transactions` creada con todos los campos necesarios
-- [ ] Tabla `installment_plans` creada para MSI (meses sin intereses)
-- [ ] Tabla `merchants` creada para catálogo de comercios
-- [ ] Tabla `processing_log` para tracking de archivos procesados
-- [ ] Índices creados para queries frecuentes
-- [ ] Migraciones versionadas
+- [x] Tabla `statements` creada (metadata del estado de cuenta)
+- [x] Tabla `transactions` creada con todos los campos necesarios
+- [x] Tabla `installment_plans` creada para MSI (meses sin intereses)
+- [x] Tabla `merchants` creada para catálogo de comercios
+- [x] Tabla `processing_log` para tracking de archivos procesados
+- [x] Índices creados para queries frecuentes
+- [x] Migraciones versionadas
 
 **Modelo `transactions`:**
 ```
@@ -96,17 +96,17 @@ source_bank, status, raw_data, created_at
 **Para** conocer saldos, fechas de corte y límites de pago
 
 **Criterios de Aceptación:**
-- [ ] Extrae período (fecha inicio - fecha fin)
-- [ ] Extrae fecha de corte
-- [ ] Extrae fecha límite de pago
-- [ ] Extrae saldo anterior
-- [ ] Extrae pago para no generar intereses
-- [ ] Extrae pago mínimo
-- [ ] Extrae saldo deudor total
-- [ ] Extrae límite de crédito
-- [ ] Extrae crédito disponible
-- [ ] Extrae número de cuenta (últimos 4 dígitos)
-- [ ] Maneja errores gracefully si falta algún campo
+- [x] Extrae período (fecha inicio - fecha fin)
+- [x] Extrae fecha de corte
+- [x] Extrae fecha límite de pago
+- [x] Extrae saldo anterior
+- [x] Extrae pago para no generar intereses
+- [x] Extrae pago mínimo
+- [x] Extrae saldo deudor total
+- [x] Extrae límite de crédito
+- [x] Extrae crédito disponible
+- [x] Extrae número de cuenta (últimos 4 dígitos)
+- [x] Maneja errores gracefully si falta algún campo
 
 **Estimación:** 4 horas
 
@@ -118,15 +118,15 @@ source_bank, status, raw_data, created_at
 **Para** ver mis compras y pagos del período
 
 **Criterios de Aceptación:**
-- [ ] Extrae fecha de operación
-- [ ] Extrae fecha de cargo
-- [ ] Extrae descripción del movimiento
-- [ ] Extrae monto con signo correcto (+ cargo, - abono)
-- [ ] Identifica pagos (PAGO INTERBANCARIO, etc.)
-- [ ] Identifica cargos de intereses (* INTERESES EFI *)
-- [ ] Identifica pagos de MSI (05 DE 12 SPORT CITY...)
-- [ ] Maneja transacciones en múltiples páginas
-- [ ] Parsea correctamente montos con formato mexicano
+- [x] Extrae fecha de operación
+- [x] Extrae fecha de cargo
+- [x] Extrae descripción del movimiento
+- [x] Extrae monto con signo correcto (+ cargo, - abono)
+- [x] Identifica pagos (PAGO INTERBANCARIO, etc.)
+- [x] Identifica cargos de intereses (* INTERESES EFI *)
+- [x] Identifica pagos de MSI (05 DE 12 SPORT CITY...)
+- [x] Maneja transacciones en múltiples páginas
+- [x] Parsea correctamente montos con formato mexicano
 
 **Estimación:** 6 horas
 
@@ -138,16 +138,16 @@ source_bank, status, raw_data, created_at
 **Para** saber qué compromisos tengo y cuándo terminan
 
 **Criterios de Aceptación:**
-- [ ] Extrae fecha de operación
-- [ ] Extrae descripción
-- [ ] Extrae monto original
-- [ ] Extrae saldo pendiente
-- [ ] Extrae pago requerido (mensualidad)
-- [ ] Extrae número de pago actual (ej: "5 de 12")
-- [ ] Extrae total de pagos
-- [ ] Calcula fecha de término
-- [ ] Tasa de interés = 0%
-- [ ] Flag has_interest = false
+- [x] Extrae fecha de operación
+- [x] Extrae descripción
+- [x] Extrae monto original
+- [x] Extrae saldo pendiente
+- [x] Extrae pago requerido (mensualidad)
+- [x] Extrae número de pago actual (ej: "5 de 12")
+- [x] Extrae total de pagos
+- [x] Calcula fecha de término
+- [x] Tasa de interés = 0%
+- [x] Flag has_interest = false
 
 **Estimación:** 4 horas
 
@@ -159,12 +159,12 @@ source_bank, status, raw_data, created_at
 **Para** saber cuánto me está costando mi deuda
 
 **Criterios de Aceptación:**
-- [ ] Extrae todos los campos de MSI sin intereses
-- [ ] Extrae intereses del período
-- [ ] Extrae IVA de intereses del período
-- [ ] Extrae tasa de interés aplicable
-- [ ] Flag has_interest = true
-- [ ] Identifica EFECTIVO INMEDIATO como tipo especial
+- [x] Extrae todos los campos de MSI sin intereses
+- [x] Extrae intereses del período
+- [x] Extrae IVA de intereses del período
+- [x] Extrae tasa de interés aplicable
+- [x] Flag has_interest = true
+- [x] Identifica EFECTIVO INMEDIATO como tipo especial
 
 **Estimación:** 3 horas
 
@@ -176,14 +176,14 @@ source_bank, status, raw_data, created_at
 **Para** extraer toda la información automáticamente
 
 **Criterios de Aceptación:**
-- [ ] Comando: `fin process <carpeta>`
-- [ ] Detecta archivos PDF nuevos (no procesados antes)
-- [ ] Detecta banco automáticamente (BBVA por ahora)
-- [ ] Procesa y guarda en base de datos
-- [ ] Muestra progreso en consola
-- [ ] Muestra resumen al finalizar (X archivos, Y transacciones)
-- [ ] Registra archivos procesados para no reprocesar
-- [ ] Flag `--force` para reprocesar todo
+- [x] Comando: `fin process <carpeta>`
+- [x] Detecta archivos PDF nuevos (no procesados antes)
+- [x] Detecta banco automáticamente (7 bancos soportados)
+- [x] Procesa y guarda en base de datos
+- [x] Muestra progreso en consola
+- [x] Muestra resumen al finalizar (X archivos, Y transacciones)
+- [x] Registra archivos procesados para no reprocesar
+- [x] Flag `--force` para reprocesar todo
 
 **Ejemplo de uso:**
 ```bash
@@ -207,12 +207,12 @@ Resumen: 1 archivo procesado, 25 registros creados
 **Para** asegurar que no se rompa con cambios futuros
 
 **Criterios de Aceptación:**
-- [ ] Test de extracción de resumen BBVA
-- [ ] Test de extracción de transacciones BBVA
-- [ ] Test de extracción de MSI BBVA
-- [ ] Test de detección de banco
-- [ ] Test de idempotencia (no duplica al reprocesar)
-- [ ] Fixtures con datos de ejemplo (anonimizados)
+- [x] Test de extracción de resumen BBVA
+- [x] Test de extracción de transacciones BBVA
+- [x] Test de extracción de MSI BBVA
+- [x] Test de detección de banco
+- [x] Test de idempotencia (no duplica al reprocesar)
+- [x] Fixtures con datos de ejemplo (anonimizados)
 
 **Estimación:** 3 horas
 
@@ -557,13 +557,13 @@ Crear documentos estructurados para el RAG y vectorizarlos.
 **Para** que el RAG pueda responder preguntas sobre períodos
 
 **Criterios de Aceptación:**
-- [ ] Un documento por mes procesado
-- [ ] Incluye: total ingresos, total gastos, ahorro
-- [ ] Incluye: desglose por categoría (top 5)
-- [ ] Incluye: gastos con intereses vs sin intereses
-- [ ] Incluye: total intereses + comisiones pagados
-- [ ] Incluye: comparación vs mes anterior (si existe)
-- [ ] Formato estructurado para chunking
+- [x] Un documento por mes procesado
+- [x] Incluye: total ingresos, total gastos, ahorro
+- [x] Incluye: desglose por categoría (top 5)
+- [x] Incluye: gastos con intereses vs sin intereses
+- [x] Incluye: total intereses + comisiones pagados
+- [x] Incluye: comparación vs mes anterior (si existe)
+- [x] Formato estructurado para chunking
 
 **Template:**
 ```
@@ -599,12 +599,12 @@ Crear documentos estructurados para el RAG y vectorizarlos.
 **Para** responder preguntas sobre pagos futuros
 
 **Criterios de Aceptación:**
-- [ ] Lista todos los MSI activos con fecha de término
-- [ ] Agrupa por mes de término
-- [ ] Calcula total mensual comprometido
-- [ ] Identifica MSI que terminan pronto (próximos 3 meses)
-- [ ] Incluye suscripciones como compromisos recurrentes
-- [ ] Se actualiza al procesar nuevos estados de cuenta
+- [x] Lista todos los MSI activos con fecha de término
+- [x] Agrupa por mes de término
+- [x] Calcula total mensual comprometido
+- [x] Identifica MSI que terminan pronto (próximos 3 meses)
+- [x] Incluye suscripciones como compromisos recurrentes
+- [x] Se actualiza al procesar nuevos estados de cuenta
 
 **Template:**
 ```
@@ -644,11 +644,11 @@ Total suscripciones: $1,292/mes
 **Para** responder preguntas sobre hábitos de gasto
 
 **Criterios de Aceptación:**
-- [ ] Un documento por comercio con >3 transacciones
-- [ ] Incluye: categoría asignada, total histórico, frecuencia
-- [ ] Incluye: ticket promedio, último gasto
-- [ ] Incluye: variaciones de nombre (aliases)
-- [ ] Flag si es suscripción
+- [x] Un documento por comercio con >3 transacciones
+- [x] Incluye: categoría asignada, total histórico, frecuencia
+- [x] Incluye: ticket promedio, último gasto
+- [x] Incluye: variaciones de nombre (aliases)
+- [x] Flag si es suscripción
 
 **Template:**
 ```
@@ -681,11 +681,11 @@ Total suscripciones: $1,292/mes
 **Para** vectorizar documentos sin depender de APIs externas
 
 **Criterios de Aceptación:**
-- [ ] sentence-transformers instalado
-- [ ] Modelo descargado (all-MiniLM-L6-v2 o similar)
-- [ ] Función para generar embedding de texto
-- [ ] Test de similaridad entre documentos
-- [ ] Benchmark de velocidad (docs/segundo)
+- [x] sentence-transformers instalado
+- [x] Modelo descargado (all-MiniLM-L6-v2)
+- [x] Función para generar embedding de texto
+- [x] Test de similaridad entre documentos
+- [x] Benchmark de velocidad (docs/segundo)
 
 **Estimación:** 2 horas
 
@@ -697,12 +697,12 @@ Total suscripciones: $1,292/mes
 **Para** hacer búsqueda semántica eficiente
 
 **Criterios de Aceptación:**
-- [ ] ChromaDB instalado y configurado (persistente)
-- [ ] Colección creada para documentos financieros
-- [ ] Metadata schema definido (month, year, doc_type, etc.)
-- [ ] Función para insertar documento + embedding
-- [ ] Función para buscar por similaridad
-- [ ] Función para buscar con filtros de metadata
+- [x] ChromaDB instalado y configurado (persistente)
+- [x] Colección creada para documentos financieros
+- [x] Metadata schema definido (month, year, doc_type, etc.)
+- [x] Función para insertar documento + embedding
+- [x] Función para buscar por similaridad
+- [x] Función para buscar con filtros de metadata
 
 **Estimación:** 3 horas
 
@@ -714,13 +714,14 @@ Total suscripciones: $1,292/mes
 **Para** mantener el índice actualizado automáticamente
 
 **Criterios de Aceptación:**
-- [ ] Se ejecuta después de procesar nuevos PDFs
-- [ ] Genera documentos derivados (resumen, compromisos, perfiles)
-- [ ] Aplica chunking apropiado (300-800 tokens)
-- [ ] Genera embeddings por chunk
-- [ ] Almacena en ChromaDB con metadata
-- [ ] Actualiza documentos existentes (no duplica)
-- [ ] Comando: `fin index --rebuild` para reindexar todo
+- [x] Se ejecuta después de procesar nuevos PDFs
+- [x] Genera documentos derivados (resumen, compromisos, perfiles)
+- [x] Aplica chunking apropiado (300-800 tokens)
+- [x] Genera embeddings por chunk
+- [x] Almacena en ChromaDB con metadata
+- [x] Actualiza documentos existentes (no duplica)
+- [x] Comando: `fin index --rebuild` para reindexar todo
+- [x] Comando: `fin reports --month YYYY-MM` para generar reportes
 
 **Estimación:** 5 horas
 
