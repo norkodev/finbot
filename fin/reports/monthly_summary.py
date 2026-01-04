@@ -7,7 +7,7 @@ from decimal import Decimal
 from typing import Dict, List, Tuple
 import calendar
 
-from fin.models import Transaction, Statement
+from fin.models import Transaction, Statement, InstallmentPlan
 
 
 def generate_monthly_summary(
@@ -54,10 +54,17 @@ def generate_monthly_summary(
     # Compare with previous month
     comparison = _compare_previous_month(session, year, month)
     
+    # Generate executive summary
+    exec_summary = _generate_executive_summary(totals, categories, comparison)
+    
+    # Generate recommendations
+    recommendations = _generate_recommendations(session, totals, categories, costs)
+    
     # Build markdown report
     report = _build_markdown_report(
         year, month, month_name,
-        totals, categories, costs, comparison
+        totals, categories, costs, comparison,
+        exec_summary, recommendations
     )
     
     return report
@@ -202,6 +209,112 @@ def _compare_previous_month(
     }
 
 
+def _generate_executive_summary(
+    totals: Dict,
+    categories: List,
+    comparison: Dict
+) -> List[str]:
+    """Generate executive summary highlights."""
+    highlights = []
+    
+    # Savings status
+    savings = totals['savings']
+    savings_rate = totals['savings_rate']
+    
+    if savings > 0:
+        arrow = "↑" if comparison and comparison['delta_amount'] < 0 else ""
+        highlights.append(f"✅ Ahorro: ${savings:,.2f} ({savings_rate:.1f}%) {arrow}")
+    elif savings < 0:
+        highlights.append(f"⚠️  Déficit: ${abs(savings):,.2f} ({abs(savings_rate):.1f}%)")
+    else:
+        highlights.append("⚠️  Ahorro: $0.00 (balance cero)")
+    
+    # Dominant category alert
+    if categories and len(categories) > 0:
+        top_category, top_amount, top_pct = categories[0]
+        if top_pct > 30:
+            highlights.append(f"⚠️  Categoría dominante: {top_category} ({top_pct:.0f}%)")
+    
+    # Opportunity (if high expenses vs income)
+    expense_rate = (totals['expenses'] / totals['income'] * 100) if totals['income'] > 0 else 0
+    if expense_rate > 85:
+        highlights.append(f"⚠️  Alta tasa de gasto: {expense_rate:.0f}% de ingresos")
+    
+    return highlights
+
+
+def _generate_recommendations(
+    session: Session,
+    totals: Dict,
+    categories: List,
+    costs: Dict
+) -> List[str]:
+    """Generate actionable recommendations (max 3)."""
+    recommendations = []
+    
+    # High debt costs
+    if costs['total'] > 1000:
+        recommendations.append(
+            f"💰 Reducir deuda: pagaste ${costs['total']:,.2f} en intereses+comisiones"
+        )
+    
+    # Check subscriptions
+    try:
+        from fin.analysis.subscriptions import get_active_subscriptions
+        subs = get_active_subscriptions(session, months_back=3)
+        if len(subs) > 5:
+            total_subs = sum(s['average_amount'] for s in subs)
+            recommendations.append(
+                f"📅 Revisar suscripciones: {len(subs)} activas (${total_subs:,.2f}/mes)"
+            )
+    except:
+        pass  # Subscription module not available
+    
+    # Gastos hormiga alert
+    hormiga_cat = next(
+        (c for c in categories if 'hormiga' in c[0].lower()),
+        None
+    )
+    if hormiga_cat and hormiga_cat[1] > 500:
+        recommendations.append(
+            f"🛒 Reducir gastos hormiga: ${hormiga_cat[1]:,.2f} en {hormiga_cat[0]}"
+        )
+    
+    # MSI ending soon
+    ending_soon = _check_ending_msi(session)
+    if ending_soon:
+        total_free = sum(m['monthly_payment'] for m in ending_soon)
+        recommendations.append(
+            f"📆 {len(ending_soon)} MSI terminan pronto (liberarás ${total_free:,.2f}/mes)"
+        )
+    
+    return recommendations[:3]  # Max 3
+
+
+def _check_ending_msi(session: Session) -> List[Dict]:
+    """Check for MSI ending in next 3 months."""
+    from datetime import timedelta
+    
+    try:
+        plans = session.query(InstallmentPlan).filter(
+            InstallmentPlan.status == 'active'
+        ).all()
+        
+        ending_soon = []
+        cutoff = datetime.now().date() + timedelta(days=90)  # 3 months
+        
+        for plan in plans:
+            if plan.end_date_calculated and plan.end_date_calculated <= cutoff:
+                ending_soon.append({
+                    'description': plan.description,
+                    'monthly_payment': float(plan.monthly_payment) if plan.monthly_payment else 0
+                })
+        
+        return ending_soon
+    except:
+        return []
+
+
 def _build_markdown_report(
     year: int,
     month: int,
@@ -214,10 +327,23 @@ def _build_markdown_report(
     """Build final markdown report."""
     
     lines = [
-        f"# Resumen Financiero - {month_name} {year}",
+        f"# 📊 Reporte Financiero - {month_name} {year}",
         "",
         f"Generado: {datetime.now().strftime('%Y-%m-%d %H:%M')}",
-        "",
+        ""
+    ]
+    
+    # Executive Summary
+    if exec_summary:
+        lines.extend([
+            "## Resumen Ejecutivo",
+            ""
+        ])
+        for highlight in exec_summary:
+            lines.append(highlight)
+        lines.append("")
+    
+    lines.extend([
         "## Totales",
         f"- **Ingresos**: ${totals['income']:,.2f}",
         f"- **Gastos**: ${totals['expenses']:,.2f}",
@@ -243,5 +369,15 @@ def _build_markdown_report(
             f"## Comparación vs {comparison['prev_month_name']}",
             f"- Gastos: {comparison['direction']} de {abs(comparison['delta_pct']):.1f}% (${abs(comparison['delta_amount']):,.2f})",
         ])
+    
+    # Recommendations
+    if recommendations:
+        lines.extend([
+            "",
+            "## Recomendaciones",
+            ""
+        ])
+        for i, rec in enumerate(recommendations, 1):
+            lines.append(f"{i}. {rec}")
     
     return "\n".join(lines)
