@@ -129,9 +129,9 @@ Transactions: 18
 Installment plans: 5
 ```
 
-### Production Setup & Usage
+### Production Workflow
 
-For recurring monthly processing (2-3 times/month), we recommend the following folder structure:
+For recurring monthly processing:
 
 ```
 finbot/
