@@ -756,6 +756,117 @@ def chat(model, top_k):
                 traceback.print_exc()
 
 
+@cli.group()
+def export():
+    """Export financial data to CSV or JSON."""
+    pass
+
+
+@export.command('transactions')
+@click.option('--format', type=click.Choice(['csv', 'json']), default='csv', help='Output format')
+@click.option('--start-date', help='Start date (YYYY-MM-DD)')
+@click.option('--end-date', help='End date (YYYY-MM-DD)')
+@click.option('--category', help='Filter by category')
+@click.option('--bank', help='Filter by bank')
+@click.option('--merchant', help='Filter by merchant name')
+@click.option('--output', '-o', type=click.Path(), help='Output file (default: stdout)')
+def export_transactions(format, start_date, end_date, category, bank, merchant, output):
+    """
+    Export transactions to CSV or JSON.
+    
+    Examples:
+      fin export transactions --format csv --start-date 2025-12-01 --end-date 2025-12-31
+      fin export transactions --category alimentacion --format json -o food.json
+      fin export transactions --bank bbva --format csv > bbva.csv
+    """
+    from fin.export import DataExporter
+    from datetime import datetime
+    
+    session = get_session()
+    exporter = DataExporter(session)
+    
+    # Parse dates
+    start_date_obj = None
+    end_date_obj = None
+    
+    if start_date:
+        try:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+        except ValueError:
+            console.print(f"[red]Invalid start date format. Use YYYY-MM-DD[/red]")
+            session.close()
+            return
+    
+    if end_date:
+        try:
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            console.print(f"[red]Invalid end date format. Use YYYY-MM-DD[/red]")
+            session.close()
+            return
+    
+    # Export
+    try:
+        result = exporter.export_transactions(
+            format=format,
+            start_date=start_date_obj,
+            end_date=end_date_obj,
+            category=category,
+            bank=bank,
+            merchant=merchant
+        )
+        
+        if output:
+            with open(output, 'w', encoding='utf-8') as f:
+                f.write(result)
+            console.print(f"[green]✓ Exported to {output}[/green]")
+        else:
+            # Output to stdout
+            print(result)
+    
+    except Exception as e:
+        console.print(f"[red]Error exporting: {e}[/red]")
+    
+    session.close()
+
+
+@export.command('msi')
+@click.option('--format', type=click.Choice(['csv', 'json']), default='csv', help='Output format')
+@click.option('--status', type=click.Choice(['active', 'completed', 'all']), default='active', help='Filter by status')
+@click.option('--output', '-o', type=click.Path(), help='Output file (default: stdout)')
+def export_msi(format, status, output):
+    """
+    Export installment plans (MSI) to CSV or JSON.
+    
+    Examples:
+      fin export msi --format csv --status active
+      fin export msi --format json --status all -o msi_all.json
+    """
+    from fin.export import DataExporter
+    
+    session = get_session()
+    exporter = DataExporter(session)
+    
+    try:
+        result = exporter.export_msi(
+            format=format,
+            status=status
+        )
+        
+        if output:
+            with open(output, 'w', encoding='utf-8') as f:
+                f.write(result)
+            console.print(f"[green]✓ Exported to {output}[/green]")
+        else:
+            # Output to stdout
+            print(result)
+    
+    except Exception as e:
+        console.print(f"[red]Error exporting: {e}[/red]")
+    
+    session.close()
+
+
 if __name__ == '__main__':
     cli()
 
