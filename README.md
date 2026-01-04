@@ -8,13 +8,13 @@ Financial intelligence system for personal finance management, featuring automat
   - Standard text extraction for BBVA, HSBC, Banamex, Banorte
   - **OCR support** for Liverpool (pytesseract + pdf2image)
 - 💳 **Transaction Management**: Track regular transactions, installment plans, and balance transfers
+- 🧠 **AI Classification**: 3-tier classification system (History → Rules → LLM)
+  - **Local LLM**: Uses Ollama + Qwen2.5 restricted to Mexican context
+  - **Interactive Learning**: Teach the system with `fin correct`
+- 📅 **Subscription Detection**: Automatically finds recurring monthly payments
 - 🗃️ **SQLite Database**: Local storage with SQLAlchemy ORM
-- 🔍 **Smart Queries**: Filter transactions, view monthly summaries, and track MSI
-- 🧹 **Text Normalization**: Automatic cleaning of merchant names and descriptions
-- 🔄 **Idempotent Processing**: Safely reprocess files detecting duplicates and reversals
 - 🎨 **Beautiful CLI**: Rich terminal interface with tables and progress tracking
-- 🤖 **Intelligent Classification**: 20 rule-based categories + merchant learning
-- 📂 **Production Ready**: Organized folder structure by year/month for recurring processing
+- 📂 **Production Ready**: Organized folder structure by year/month
 
 ## Installation
 
@@ -22,6 +22,7 @@ Financial intelligence system for personal finance management, featuring automat
 
 - Python 3.9 or higher
 - conda (Anaconda or Miniconda)
+- Ollama (for AI classification)
 
 ### Setup
 
@@ -34,22 +35,42 @@ Financial intelligence system for personal finance management, featuring automat
 2. **Create conda environment**
    ```bash
    conda env create -f environment.yml
-   ```
-
-3. **Activate environment**
-   ```bash
    conda activate finbot
    ```
 
-4. **Install package**
+3. **Install System Dependencies** (Ubuntu/Debian)
+   ```bash
+   # OCR support (Liverpool)
+   sudo apt-get install tesseract-ocr tesseract-ocr-spa poppler-utils
+   
+   # Ollama (AI Model)
+   curl -fsSL https://ollama.com/install.sh | sh
+   ```
+
+4. **Setup AI Model**
+   ```bash
+   # Start Ollama service
+   sudo systemctl start ollama
+   
+   # Download model (4.7 GB)
+   ollama pull qwen2.5:7b
+   ```
+
+5. **Install Python Package**
    ```bash
    pip install -e .
    ```
 
-5. **Verify installation**
+6. **Verify installation**
    ```bash
    fin --version
    ```
+
+   > **Troubleshooting CLI**: If `fin` command is not found:
+   > 1. Ensure conda environment is active: `conda activate finbot`
+   > 2. Reinstall editable package: `pip install --force-reinstall -e .`
+   > 3. Check ~/.local/bin is in your PATH
+
 
 ## Usage
 

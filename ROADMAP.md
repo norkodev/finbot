@@ -437,9 +437,28 @@ rules:
 - [x] Documentación de instalación en README
 - [x] Configuración de timeout y reintentos
 
-**Notas:**
-- Con 16GB RAM, modelos de 7B-8B funcionan bien
-- Qwen2.5:7b elegido por balance velocidad/precisión
+**Guía de Uso Ollama:**
+1. **Iniciar Servicio**: 
+   - Linux: `sudo systemctl start ollama`
+   - Manual: `ollama serve` (en terminal separada)
+2. **Verificar Estado**: 
+   - `systemctl status ollama`
+   - `curl http://localhost:11434/api/version`
+3. **Detener Servicio**: `sudo systemctl stop ollama`
+4. **Descargar Modelo**: `ollama pull qwen2.5:7b`
+5. **Ver Modelos**: `ollama list`
+
+**Nota Técnica**:
+- El bot usa timeout de 30s para no bloquear procesamiento.
+- El modelo se carga en memoria en la primera petición (puede tardar unos segundos).
+- Se recomienda GPU para mayor velocidad.
+
+**Instalación del CLI (`fin`):**
+Si el comando `fin` no se encuentra, asegúrate de instalar el paquete en modo editable:
+```bash
+pip install -e .
+```
+Esto creará el ejecutable `fin` en tu path.
 
 **Estimación:** 2 horas
 
