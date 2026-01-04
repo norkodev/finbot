@@ -1,0 +1,12 @@
+# Estructura para Diciembre 2025
+
+✅ Carpeta creada: data/inbox/2025/12/
+
+Coloca aquí tus PDFs de diciembre 2025:
+- bbva_2025-12.pdf
+- hsbc_2025-12.pdf
+- banamex_2025-12.pdf
+- etc.
+
+Luego ejecuta: ./validate_e2e.sh
+
