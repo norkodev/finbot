@@ -2,8 +2,10 @@
 
 from .embeddings import EmbeddingGenerator
 from .vector_store import FinancialVectorStore
+from .index_pipeline import IndexPipeline
 
 __all__ = [
     'EmbeddingGenerator',
     'FinancialVectorStore',
+    'IndexPipeline',
 ]

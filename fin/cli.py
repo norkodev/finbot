@@ -491,6 +491,110 @@ def subscriptions(months_back):
     session.close()
 
 
+@cli.command()
+@click.option('--month', help='Month to generate reports for (YYYY-MM)')
+def reports(month):
+    """
+    Generate financial reports (summaries, commitments, merchant profiles).
+    
+    Generates markdown reports for the specified month or all months.
+    """
+    from fin.reports import (
+        generate_monthly_summary,
+        generate_commitments_report,
+        generate_merchant_profiles
+    )
+    from pathlib import Path
+    
+    session = get_session()
+    
+    if month:
+        # Parse YYYY-MM
+        try:
+            year, month_num = map(int, month.split('-'))
+        except ValueError:
+            console.print("[red]Invalid month format. Use YYYY-MM (e.g., 2025-12)[/red]")
+            return
+        
+        console.print(f"\n[bold blue]Generating reports for {month}...[/bold blue]\n")
+        
+        # Monthly summary
+        summary_md = generate_monthly_summary(session, year, month_num)
+        summaries_dir = Path("data/reports/summaries")
+        summaries_dir.mkdir(parents=True, exist_ok=True)
+        summary_file = summaries_dir / f"{month}.md"
+        summary_file.write_text(summary_md, encoding='utf-8')
+        console.print(f"✓ Monthly summary: {summary_file}")
+        
+    else:
+        console.print("\n[bold blue]Generating all reports...[/bold blue]\n")
+    
+    # Commitments (always generate, it's month-independent)
+    commitments_md = generate_commitments_report(session)
+    reports_dir = Path("data/reports")
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    commitments_file = reports_dir / "commitments.md"
+    commitments_file.write_text(commitments_md, encoding='utf-8')
+    console.print(f"✓ Commitments: {commitments_file}")
+    
+    # Merchant profiles
+    profiles = generate_merchant_profiles(session)
+    if profiles:
+        merchants_dir = Path("data/reports/merchants")
+        merchants_dir.mkdir(parents=True, exist_ok=True)
+        for merchant_name, profile_md in profiles:
+            import re
+            safe_name = re.sub(r'[^\w\s-]', '', merchant_name).strip().replace(' ', '_')
+            profile_file = merchants_dir / f"{safe_name}.md"
+            profile_file.write_text(profile_md, encoding='utf-8')
+        console.print(f"✓ Merchant profiles: {len(profiles)} generated")
+    
+    console.print("\n[green]✓ Reports generated successfully![/green]")
+    session.close()
+
+
+@cli.command()
+@click.option('--rebuild', is_flag=True, help='Rebuild entire index from scratch')
+@click.option('--month', help='Index specific month (YYYY-MM)')
+def index(rebuild, month):
+    """
+    Manage vector index for semantic search.
+    
+    Indexes financial documents in ChromaDB for RAG/chat functionality.
+    """
+    from fin.vectorization import IndexPipeline
+    
+    session = get_session()
+    pipeline = IndexPipeline(session)
+    
+    if rebuild:
+        console.print("\n[bold yellow]Rebuilding entire index...[/bold yellow]\n")
+        pipeline.rebuild_index()
+        console.print("\n[green]✓ Index rebuilt![/green]")
+    
+    elif month:
+        try:
+            year, month_num = map(int, month.split('-'))
+        except ValueError:
+            console.print("[red]Invalid month format. Use YYYY-MM[/red]")
+            return
+        
+        console.print(f"\n[bold blue]Indexing {month}...[/bold blue]\n")
+        pipeline.index_month(year, month_num, force=True)
+        pipeline.index_commitments(force=True)
+        pipeline.index_merchants(force=True)
+        console.print("\n[green]✓ Indexing complete![/green]")
+    
+    else:
+        # Show stats
+        stats = pipeline.vector_store.get_stats()
+        console.print("\n[bold]Vector Index Status[/bold]\n")
+        console.print(f"Total documents: {stats['total_documents']}")
+        console.print(f"Storage: {stats['persist_directory']}")
+    
+    session.close()
+
+
 if __name__ == '__main__':
     cli()
 
