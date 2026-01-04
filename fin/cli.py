@@ -595,6 +595,167 @@ def index(rebuild, month):
     session.close()
 
 
+@cli.command()
+@click.option('--model', default='qwen2.5:7b', help='Ollama model to use')
+@click.option('--top-k', default=5, help='Number of documents to retrieve')
+def chat(model, top_k):
+    """
+    Interactive chat about your finances using AI.
+    
+    Ask questions in natural language and get answers based on
+    your bank statements and financial data using RAG.
+    """
+    from fin.rag import ChatEngine
+    from fin.rag.prompts import get_example_questions
+    
+    console.print()
+    console.print("[bold cyan]💬 Asistente Financiero[/bold cyan]")
+    console.print("[dim]Pregúntame sobre tus finanzas personales[/dim]")
+    console.print("[dim]Comandos: /exit, /clear, /sources, /examples, /help[/dim]")
+    console.print()
+    console.print("[yellow]⚠️  Esta información es orientativa. Verifica siempre tus estados de cuenta.[/yellow]")
+    console.print()
+    
+    # Initialize chat engine
+    try:
+        engine = ChatEngine(model=model, top_k=top_k)
+    except Exception as e:
+        console.print(f"[red]Error al inicializar chat: {e}[/red]")
+        return
+    
+    # Health check for Ollama
+    if not engine.health_check():
+        console.print("[red]⚠️  Ollama no está disponible. Asegúrate de que esté corriendo:[/red]")
+        console.print("[dim]   sudo systemctl start ollama[/dim]")
+        console.print()
+        return
+    
+    last_sources = []
+    
+    while True:
+        try:
+            # Get user input
+            question = console.input("[bold green]>[/bold green] ")
+            
+            if not question.strip():
+                continue
+            
+            # Handle special commands
+            if question.startswith('/'):
+                command = question.lower().strip()
+                
+                if command == '/exit':
+                    console.print("\n👋 [bold]¡Hasta pronto![/bold]\n")
+                    break
+                
+                elif command == '/clear':
+                    engine.clear_history()
+                    console.print("[dim]✓ Historial de conversación limpiado[/dim]\n")
+                    continue
+                
+                elif command == '/sources':
+                    if last_sources:
+                        console.print("\n[bold]📄 Fuentes de la última respuesta:[/bold]")
+                        for i, source in enumerate(last_sources, 1):
+                            month = source['metadata'].get('month', 'N/A')
+                            doc_type = source['metadata'].get('doc_type', 'N/A')
+                            score = 1.0 - source.get('distance', 0.0) / 2.0
+                            console.print(f"  {i}. {doc_type} ({month}) - relevancia: {score:.2f}")
+                        console.print()
+                    else:
+                        console.print("[dim]No hay fuentes disponibles aún[/dim]\n")
+                    continue
+                
+                elif command == '/examples':
+                    console.print("\n[bold]Ejemplos de preguntas:[/bold]")
+                    for i, example in enumerate(get_example_questions(), 1):
+                        console.print(f"  {i}. {example}")
+                    console.print()
+                    continue
+                
+                elif command == '/help':
+                    console.print("""
+[bold]Comandos disponibles:[/bold]
+  /exit      - Salir del chat
+  /clear     - Limpiar historial de conversación
+  /sources   - Ver fuentes de la última respuesta
+  /examples  - Ver ejemplos de preguntas
+  /help      - Mostrar esta ayuda
+
+[bold]Ejemplos de preguntas:[/bold]
+  - ¿Cuánto gasté en comida en diciembre?
+  - ¿Qué compromisos terminan pronto?
+  - ¿Cuánto gasto en OXXO al mes?
+  - ¿Cuánto he pagado de intereses?
+  - Compara mis gastos de noviembre vs diciembre
+""")
+                    continue
+                
+                else:
+                    console.print(f"[yellow]Comando desconocido: {command}[/yellow]")
+                    console.print("[dim]Escribe /help para ver comandos disponibles[/dim]\n")
+                    continue
+            
+            # Process question
+            console.print("[dim]🔍 Buscando información...[/dim]")
+            
+            result = engine.chat(question)
+            
+            # Display answer
+            console.print()
+            
+            # Format answer with better presentation
+            answer = result['answer']
+            
+            # Check for error
+            if result.get('error'):
+                console.print(f"[red]{answer}[/red]")
+            else:
+                # Display answer
+                console.print(answer)
+            
+            # Display sources if any
+            if result['sources']:
+                console.print()
+                console.print("[dim]📄 Fuentes: ", end="")
+                
+                # Get unique source descriptions
+                source_descriptions = []
+                for source in result['sources']:
+                    month = source['metadata'].get('month', '')
+                    doc_type = source['metadata'].get('doc_type', '')
+                    
+                    doc_type_map = {
+                        'summary': 'Resumen',
+                        'commitment': 'Compromisos',
+                        'merchant_profile': 'Perfil'
+                    }
+                    doc_type_es = doc_type_map.get(doc_type, doc_type)
+                    
+                    if month:
+                        desc = f"{doc_type_es} {month}"
+                    else:
+                        desc = doc_type_es
+                    
+                    if desc not in source_descriptions:
+                        source_descriptions.append(desc)
+                
+                console.print(", ".join(source_descriptions[:3]) + "[/dim]")
+                last_sources = result['sources']
+            
+            console.print()
+        
+        except KeyboardInterrupt:
+            console.print("\n\n👋 [bold]¡Hasta pronto![/bold]\n")
+            break
+        
+        except Exception as e:
+            console.print(f"\n[red]Error: {e}[/red]\n")
+            import traceback
+            if console.is_terminal:
+                traceback.print_exc()
+
+
 if __name__ == '__main__':
     cli()
 
