@@ -148,7 +148,6 @@ finbot/
 │   └── finbot.db                # SQLite database
 └── validate_e2e.sh              # E2E validation script
 ```
-              # E2E validation script
 ```
 
 #### Monthly Routine
