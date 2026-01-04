@@ -431,15 +431,15 @@ rules:
 **Para** clasificar transacciones que no matchean reglas
 
 **Criterios de Aceptación:**
-- [ ] Ollama instalado y funcionando
-- [ ] Modelo descargado (deepseek-coder o llama3)
-- [ ] Script de prueba que hace una query simple
-- [ ] Documentación de instalación en README
-- [ ] Configuración de timeout y reintentos
+- [x] Ollama instalado y funcionando
+- [x] Modelo descargado (qwen2.5:7b)
+- [x] Script de prueba que hace una query simple  
+- [x] Documentación de instalación en README
+- [x] Configuración de timeout y reintentos
 
 **Notas:**
 - Con 16GB RAM, modelos de 7B-8B funcionan bien
-- DeepSeek-R1 7B o Llama 3 8B recomendados
+- Qwen2.5:7b elegido por balance velocidad/precisión
 
 **Estimación:** 2 horas
 
@@ -451,13 +451,13 @@ rules:
 **Para** categorizar casos nuevos o ambiguos
 
 **Criterios de Aceptación:**
-- [ ] Solo se invoca si reglas no matchean
-- [ ] Prompt optimizado para clasificación
-- [ ] Respuesta parseada a categoría/subcategoría
-- [ ] Confidence score estimado
-- [ ] Batch de transacciones para eficiencia (max 20)
-- [ ] Cache de clasificaciones para no repetir
-- [ ] Timeout de 30 segundos por batch
+- [x] Solo se invoca si reglas no matchean
+- [x] Prompt optimizado para clasificación
+- [x] Respuesta parseada a categoría/subcategoría
+- [x] Confidence score estimado
+- [x] Batch de transacciones para eficiencia (max 20)
+- [x] Cache de clasificaciones para no repetir
+- [x] Timeout de 30 segundos por batch
 
 **Prompt ejemplo:**
 ```
@@ -482,11 +482,11 @@ Responde en JSON:
 **Para** entrenar al sistema con mis preferencias
 
 **Criterios de Aceptación:**
-- [ ] Comando: `fin correct`
-- [ ] Muestra transacciones sin clasificar o baja confianza
-- [ ] Permite asignar categoría manualmente
-- [ ] Guarda corrección en merchant catalog
-- [ ] Aplica a transacciones futuras del mismo comercio
+- [x] Comando: `fin correct`
+- [x] Muestra transacciones sin clasificar o baja confianza
+- [x] Permite asignar categoría manualmente
+- [x] Guarda corrección en merchant catalog
+- [x] Aplica a transacciones futuras del mismo comercio
 
 **Flujo:**
 ```
@@ -515,11 +515,11 @@ Transacciones por revisar (5):
 **Para** mostrar compromisos recurrentes al usuario
 
 **Criterios de Aceptación:**
-- [ ] Detecta mismo comercio + monto similar + periodicidad mensual
-- [ ] Mínimo 2 ocurrencias para marcar como suscripción
-- [ ] Lista de suscripciones conocidas (Netflix, Spotify, etc.)
-- [ ] Flag `is_subscription = true` en transacción
-- [ ] Comando `fin subscriptions` para listar
+- [x] Detecta mismo comercio + monto similar + periodicidad mensual
+- [x] Mínimo 2 ocurrencias para marcar como suscripción
+- [x] Lista de suscripciones conocidas (Netflix, Spotify, etc.)
+- [x] Flag `is_subscription = true` en transacción
+- [x] Comando `fin subscriptions` para listar
 
 **Estimación:** 3 horas
 
