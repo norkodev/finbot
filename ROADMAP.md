@@ -740,12 +740,12 @@ Implementar el chat que responde preguntas sobre finanzas.
 **Para** dar contexto al LLM
 
 **Criterios de Aceptación:**
-- [ ] Búsqueda por similaridad semántica
-- [ ] Filtros por metadata (mes, tipo de documento)
-- [ ] Extracción de entidades de la pregunta (fechas, categorías)
-- [ ] Reranking de resultados
-- [ ] Top-K configurable (default 5)
-- [ ] Incluye score de relevancia
+- [x] Búsqueda por similaridad semántica
+- [x] Filtros por metadata (mes, tipo de documento)
+- [x] Extracción de entidades de la pregunta (fechas, categorías)
+- [x] Reranking de resultados
+- [x] Top-K configurable (default 5)
+- [x] Incluye score de relevancia
 
 **Ejemplos:**
 ```
@@ -768,12 +768,12 @@ Query: "¿Qué pagos terminan pronto?"
 **Para** obtener respuestas precisas y útiles
 
 **Criterios de Aceptación:**
-- [ ] System prompt con contexto de finanzas personales
-- [ ] Instrucciones para citar fuentes (mes, documento)
-- [ ] Instrucciones para no inventar datos
-- [ ] Formato de respuesta estructurado
-- [ ] Manejo de preguntas fuera de scope
-- [ ] Templates para diferentes tipos de consulta
+- [x] System prompt con contexto de finanzas personales
+- [x] Instrucciones para citar fuentes (mes, documento)
+- [x] Instrucciones para no inventar datos
+- [x] Formato de respuesta estructurado
+- [x] Manejo de preguntas fuera de scope
+- [x] Templates para diferentes tipos de consulta
 
 **System Prompt (borrador):**
 ```
@@ -804,13 +804,13 @@ PREGUNTA DEL USUARIO:
 **Para** consultar mis finanzas en lenguaje natural
 
 **Criterios de Aceptación:**
-- [ ] Comando: `fin chat`
-- [ ] Loop interactivo de pregunta/respuesta
-- [ ] Muestra fuentes usadas para la respuesta
-- [ ] Historial de conversación en sesión
-- [ ] Comandos especiales: /exit, /clear, /sources
-- [ ] Indicador de "pensando..." mientras procesa
-- [ ] Timeout de 60 segundos con mensaje amigable
+- [x] Comando: `fin chat`
+- [x] Loop interactivo de pregunta/respuesta
+- [x] Muestra fuentes usadas para la respuesta
+- [x] Historial de conversación en sesión
+- [x] Comandos especiales: /exit, /clear, /sources, /examples, /help
+- [x] Indicador de "pensando..." mientras procesa
+- [x] Timeout de 60 segundos con mensaje amigable
 
 **Ejemplo de sesión:**
 ```
@@ -855,11 +855,11 @@ Esto liberará $890/mes a partir de febrero.
 **Para** responder preguntas de planeación financiera
 
 **Criterios de Aceptación:**
-- [ ] Calcula totales por categoría/período
-- [ ] Calcula promedios históricos
-- [ ] Proyecta ahorro futuro (si reduzco X, en Y meses tengo Z)
-- [ ] Calcula fecha de liberación de compromisos
-- [ ] Calcula costo total de deuda (intereses acumulados)
+- [x] Calcula totales por categoría/período
+- [x] Calcula promedios históricos
+- [x] Proyecta ahorro futuro (si reduzco X, en Y meses tengo Z)
+- [x] Calcula fecha de liberación de compromisos
+- [x] Calcula costo total de deuda (intereses acumulados)
 
 **Ejemplos:**
 ```
@@ -886,12 +886,12 @@ El Efectivo Inmediato de $35,600 a 36 meses al 31% te ha costado:
 **Para** mantener la confianza del usuario
 
 **Criterios de Aceptación:**
-- [ ] Detecta preguntas fuera de scope (inversiones, crypto, etc.)
-- [ ] Responde "no tengo esa información" cuando corresponde
-- [ ] No inventa datos si no hay documentos relevantes
-- [ ] Maneja errores de Ollama gracefully
-- [ ] Logging de preguntas sin respuesta (para mejorar)
-- [ ] Disclaimer: "Esta información es orientativa..."
+- [x] Detecta preguntas fuera de scope (inversiones, crypto, etc.)
+- [x] Responde "no tengo esa información" cuando corresponde
+- [x] No inventa datos si no hay documentos relevantes
+- [x] Maneja errores de Ollama gracefully
+- [x] Logging de preguntas sin respuesta (para mejorar)
+- [x] Disclaimer: "Esta información es orientativa..."
 
 **Estimación:** 3 horas
 

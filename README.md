@@ -20,6 +20,12 @@ Financial intelligence system for personal finance management, featuring automat
   - Local embeddings (sentence-transformers)
   - Document chunking and indexing
   - Metadata filtering
+- 💬 **AI Chat Assistant**: Interactive financial Q&A with RAG
+  - Natural language questions about your finances
+  - Semantic document retrieval
+  - Context-aware responses with source citations
+  - Financial calculations and projections
+  - Guardrails to prevent hallucinations
 - 🗃️ **SQLite Database**: Local storage with SQLAlchemy ORM
 - 🎨 **Beautiful CLI**: Rich terminal interface with tables and progress tracking
 - 📂 **Production Ready**: Organized folder structure by year/month
@@ -255,6 +261,41 @@ See recurring monthly payments:
 ```bash
 fin subscriptions --months-back 3
 ```
+
+#### 8. AI Chat Assistant
+Ask questions about your finances in natural language:
+
+```bash
+fin chat
+```
+
+**Example Session**:
+```
+💬 Asistente Financiero
+
+> ¿Cuánto gasté en comida en diciembre?
+
+🔍 Buscando información...
+
+En diciembre 2025 gastaste $8,543 en alimentación,
+representando el 22% de tus gastos totales del mes...
+
+📄 Fuentes: Resumen 2025-12
+
+> ¿Qué MSI terminan pronto?
+
+...
+
+> /exit
+👋 ¡Hasta pronto!
+```
+
+**Available Commands**:
+- `/exit` - Exit chat
+- `/clear` - Clear conversation history
+- `/sources` - Show sources from last answer
+- `/examples` - Show example questions
+- `/help` - Show help
 
 ## Project Structure
 
