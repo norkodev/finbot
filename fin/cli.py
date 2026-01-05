@@ -28,13 +28,17 @@ def cli():
 @cli.command()
 @click.argument('directory', type=click.Path(exists=True))
 @click.option('--force', is_flag=True, help='Reprocess already processed files')
-def process(directory, force):
+@click.option('--skip-llm', is_flag=True, help='Skip LLM classification (use rules only, faster)')
+def process(directory, force, skip_llm):
     """
     Process bank statement PDFs from a directory.
     
     DIRECTORY: Path to folder containing PDF bank statements
     """
     console.print(f"\n[bold blue]Processing bank statements from: {directory}[/bold blue]\n")
+    
+    if skip_llm:
+        console.print("[yellow]⚡ LLM classification disabled - using rules only[/yellow]\n")
     
     # Get all PDF files
     pdf_files = list(Path(directory).glob('*.pdf')) + list(Path(directory).glob('*.PDF'))
@@ -44,7 +48,7 @@ def process(directory, force):
         return
     
     detector = BankDetector()
-    classifier = TransactionClassifier()
+    classifier = TransactionClassifier(use_llm=not skip_llm)
     session = get_session()
     
     total_processed = 0
@@ -62,13 +66,16 @@ def process(directory, force):
                 # Calculate file hash
                 file_hash = _calculate_file_hash(str(pdf_file))
                 
-                # Check if already processed
+                # Check if already processed SUCCESSFULLY
+                # Only skip if status is 'success' and has transactions
                 if not force:
                     existing = session.query(ProcessingLog).filter_by(file_hash=file_hash).first()
-                    if existing:
-                        console.print(f"[dim]Skipping {pdf_file.name} (already processed)[/dim]")
+                    if existing and existing.processing_status == 'success' and existing.transactions_created > 0:
+                        console.print(f"[dim]Skipping {pdf_file.name} (already processed successfully)[/dim]")
                         progress.advance(task)
                         continue
+                    elif existing and existing.processing_status != 'success':
+                        console.print(f"[yellow]⚠ Re-processing {pdf_file.name} (previous attempt: {existing.processing_status})[/yellow]")
                 
                 # Detect bank
                 extractor = detector.detect(str(pdf_file))
@@ -82,14 +89,53 @@ def process(directory, force):
                 try:
                     statement, transactions, installments = extractor.parse(str(pdf_file))
                     
-                    if statement is None:
+                    # Handle complete failure
+                    if statement is None and len(transactions) == 0:
                         console.print(f"[red]✗ Failed to parse {pdf_file.name}[/red]")
-                        _log_processing(session, str(pdf_file), file_hash, extractor.bank_name, 'error', 'Parsing failed')
+                        _log_processing(session, str(pdf_file), file_hash, extractor.bank_name, 'error', 'Parsing failed - no data extracted')
+                        progress.advance(task)
+                        continue
+                    
+                    # Handle partial results (statement is None but we have transactions)
+                    if statement is None and len(transactions) > 0:
+                        console.print(f"[yellow]⚠ Partial extraction for {pdf_file.name}[/yellow]")
+                        # Create minimal statement
+                        from datetime import date
+                        statement = Statement()
+                        statement.bank = extractor.bank_name
+                        statement.source_type = "unknown"
+                        statement.source_file = str(pdf_file)
+                        statement.period_start = date.today()
+                        statement.period_end = date.today()
+                    
+                    # Validate statement has minimum required data
+                    if not statement.bank or not statement.source_file:
+                        console.print(f"[red]✗ Invalid statement data for {pdf_file.name}[/red]")
+                        _log_processing(session, str(pdf_file), file_hash, extractor.bank_name, 'error', 'Invalid statement data')
+                        progress.advance(task)
+                        continue
+                    
+                    # Additional validation: verify we have meaningful data
+                    # A valid statement should have either:
+                    # 1. Transactions, OR
+                    # 2. A valid period (for zero-transaction months - rare but possible)
+                    has_valid_period = statement.period_start and statement.period_end
+                    
+                    if len(transactions) == 0 and not has_valid_period:
+                        console.print(f"[yellow]⚠ Warning: No transactions and no period for {pdf_file.name}[/yellow]")
+                        console.print(f"[yellow]  This may indicate extraction failure. Logging as partial failure.[/yellow]")
+                        _log_processing(session, str(pdf_file), file_hash, extractor.bank_name, 'partial_failure', 
+                                      f'No transactions extracted and no valid period', 0, 0, 0)
                         progress.advance(task)
                         continue
                     
                     # Classify transactions
-                    classified_count = classifier.classify_batch(session, transactions)
+                    try:
+                        classified_count = classifier.classify_batch(session, transactions)
+                    except Exception as e:
+                        console.print(f"[yellow]⚠ Classification failed: {e}[/yellow]")
+                        classified_count = 0
+                        # Continue - classification failure shouldn't prevent saving
                     
                     # Save to database
                     session.add(statement)
@@ -103,14 +149,24 @@ def process(directory, force):
                         plan.statement_id = statement.id
                         session.add(plan)
                     
+                    # Final validation before marking as success
+                    # Only mark as 'success' if we actually extracted data
+                    if len(transactions) > 0 or (len(installments) > 0) or has_valid_period:
+                        status = 'success'
+                        error_msg = None
+                    else:
+                        # Edge case: shouldn't reach here due to earlier check, but be defensive
+                        status = 'partial_success'
+                        error_msg = 'Extraction completed but no transactions found'
+                    
                     # Log processing
                     _log_processing(
                         session,
                         str(pdf_file),
                         file_hash,
                         extractor.bank_name,
-                        'success',
-                        None,
+                        status,
+                        error_msg,
                         1,
                         len(transactions),
                         len(installments)
@@ -119,9 +175,13 @@ def process(directory, force):
                     session.commit()
                     
                     # Detect duplicates and reversals
-                    from fin.utils.duplicates import detect_all
-                    detection_results = detect_all(session, statement.id)
-                    session.commit()
+                    try:
+                        from fin.utils.duplicates import detect_all
+                        detection_results = detect_all(session, statement.id)
+                        session.commit()
+                    except Exception as e:
+                        console.print(f"[dim]Warning: Duplicate detection failed: {e}[/dim]")
+                        detection_results = {'total_flagged': 0, 'duplicates': 0, 'reversals': 0}
                     
                     # Display results
                     console.print(f"\n[green]✓ {pdf_file.name}[/green]")
@@ -140,7 +200,9 @@ def process(directory, force):
                     
                 except Exception as e:
                     console.print(f"[red]✗ Error processing {pdf_file.name}: {e}[/red]")
-                    _log_processing(session, str(pdf_file), file_hash, extractor.bank_name, 'error', str(e))
+                    import traceback
+                    traceback.print_exc()
+                    _log_processing(session, str(pdf_file), file_hash, extractor.bank_name if extractor else None, 'error', str(e))
                     session.rollback()
                 
                 progress.advance(task)
