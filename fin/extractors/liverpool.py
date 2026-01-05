@@ -361,15 +361,22 @@ class LiverpoolCreditExtractor(BaseExtractor):
         return transactions
     
     def _extract_msi(self, text: str, statement: Statement):
-        """Extract MSI plans if available."""
+        """Extract MSI plans if available.
+        
+        Liverpool MSI format (from OCR of table on pages 2-3):
+        DATE CODE INSTALLMENT# MENS TYPE PROMO LPC TOTAL# AMOUNTS...
+        Example: @ENE 037 18 MENS SANT PROMOC LPC 12 24,800.44 0.00 3,100.15 21,699.45
+        """
         plans = []
         
         lines = text.split('\n')
         
         for line in lines:
-            # Liverpool MSI pattern: DESCRIPTION X de Y MESES $PAYMENT
-            msi_match = re.match(
-                r'(.+?)\s+(\d+)\s+de\s+(\d+)\s+(?:MESES|meses)\s+\$?\s*([0-9,]+\.?\d*)',
+            # Liverpool MSI pattern from table:
+            # Format: NN MENS [SANT|SINT] PROMOC LPC TOTAL SALDO_ANT CARGOS MENSUALIDAD SALDO_FINAL
+            #  Where NN = current installment paid, TOTAL = total installments
+            msi_match = re.search(
+                r'(\d{1,2})\s+MENS\s+\w+\s+\w+\s+\w+\s+(\d+)\s+[\d,]+\.\d+\s+[\d,\.]+\s+([\d,]+\.\d+)',
                 line,
                 re.IGNORECASE
             )
@@ -378,22 +385,48 @@ class LiverpoolCreditExtractor(BaseExtractor):
                 try:
                     plan = InstallmentPlan()
                     plan.statement_id = statement.id
-                    plan.description = msi_match.group(1).strip()
-                    plan.current_installment = int(msi_match.group(2))
-                    plan.total_installments = int(msi_match.group(3))
-                    plan.monthly_payment = parse_amount(msi_match.group(4))
-                    plan.has_interest = False  # Assume MSI unless stated
+                    
+                    # Extract from table columns
+                    current_inst = int(msi_match.group(1))
+                    total_inst = int(msi_match.group(2))
+                    monthly_payment = parse_amount(msi_match.group(3))
+                    
+                    # Get description from the line (extract DATE and plan code)
+                    desc_match = re.search(r'([\d@-]+[A-Z]{3}|[\d-]+[A-Z]{3})\s+(\d{3})', line)
+                    if desc_match:
+                        plan.description = f"Plan {desc_match.group(2)} - {desc_match.group(1)}"
+                    else:
+                        plan.description = "Plan Liverpool MSI"
+                    
+                    plan.current_installment = current_inst
+                    plan.total_installments = total_inst
+                    plan.monthly_payment = monthly_payment
+                    
+                    # Calculate original amount (monthly payment * total installments)
+                    plan.original_amount = monthly_payment * total_inst
+                    
+                    # Determine if it has interest based on keyword
+                    # SANT = Con interés, SINT = Sin interés
+                    has_interest = 'SANT' in line.upper()
+                    plan.has_interest = has_interest
+                    
                     plan.source_bank = self.bank_name
-                    plan.plan_type = 'msi'
+                    plan.plan_type = 'msi' if not has_interest else 'installment'
                     plan.status = 'active'
                     
                     # Calculate remaining
-                    plan.pending_balance = plan.monthly_payment * (plan.total_installments - plan.current_installment + 1)
+                    remaining_payments = total_inst - current_inst
+                    if remaining_payments < 0:
+                        remaining_payments = 0
+                    plan.pending_balance = monthly_payment * remaining_payments
                     
                     plan.calculate_end_date()
                     
                     plans.append(plan)
-                except:
+                    logger.debug(f"Extracted MSI: {plan.description} - {current_inst}/{total_inst} @ ${monthly_payment}")
+                    
+                except Exception as e:
+                    logger.warning(f"Failed to parse MSI line: {line[:100]} - {e}")
                     continue
         
         return plans
