@@ -4,7 +4,7 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Duración** | 12 semanas |
+| **Duración** | 14 semanas |
 | **Dedicación** | 2 hrs/día (~10 hrs/semana) |
 | **Desarrollador** | 1 persona |
 | **Entregables** | Cada 2 semanas |
@@ -20,7 +20,7 @@
 | E3 | Documentos Derivados y Vectorización | 4 | 🔴 Crítica |
 | E4 | RAG y Chat | 5 | 🔴 Crítica |
 | E5 | Reportes y Análisis | 6 | 🟡 Alta |
-| E6 | Refinamiento y Estabilización | 6 | 🟡 Alta |
+| E6 | Refinamiento y Estabilización | 6-7 | 🔴 Crítica |
 
 ---
 
@@ -1019,6 +1019,117 @@ Generar reportes automáticos y pulir el sistema para uso real.
 
 ---
 
+## Sprint 7 (Semanas 13-14): Estabilización Crítica
+
+### Objetivo
+Resolver problemas críticos identificados en producción relacionados con Liverpool, clasificación y performance del chat.
+
+---
+
+### E6-US05: Fix de extracción Liverpool PDFs con OCR
+**Como** usuario  
+**Quiero** que los estados de cuenta de Liverpool se lean correctamente  
+**Para** tener todos mis datos financieros completos
+
+**Criterios de Aceptación:**
+- [ ] Revisar y corregir el extractor OCR de Liverpool TDC
+- [ ] Revisar y corregir el extractor OCR de Liverpool TDD
+- [ ] Verificar que pytesseract esté configurado correctamente
+- [ ] Manejar casos edge en la codificación de PDFs de Liverpool
+- [ ] Implementar logging detallado para debugging de OCR
+- [ ] Validar con múltiples PDFs de diferentes períodos
+- [ ] Documentar limitaciones conocidas del OCR
+
+**Contexto Técnico:**
+Los PDFs de Liverpool usan codificación no estándar que requiere OCR. Problemas comunes:
+- Texto extraído con caracteres corruptos
+- Tablas no detectadas correctamente
+- Números mal interpretados por Tesseract
+
+**Estimación:** 6 horas
+
+---
+
+### E6-US06: Fix de persistencia de datos Liverpool
+**Como** usuario  
+**Quiero** que los datos de Liverpool se guarden en la base de datos  
+**Para** poder consultarlos y analizarlos
+
+**Criterios de Aceptación:**
+- [ ] Investigar por qué los datos de Liverpool no se guardan
+- [ ] Verificar mapper de Liverpool a modelo de datos
+- [ ] Asegurar persistencia de Liverpool TDC (tarjeta de crédito)
+- [ ] Asegurar persistencia de Liverpool TDD (tarjeta de débito)
+- [ ] Agregar validación de datos antes de insertar
+- [ ] Verificar integridad referencial (statements → transactions)
+- [ ] Test de end-to-end: PDF Liverpool → DB → consulta
+
+**Debug Checklist:**
+- ¿Se está creando el registro en `statements`?
+- ¿Se están creando registros en `transactions`?
+- ¿Hay errores en logs que se estén silenciando?
+- ¿El formato de datos cumple constraints de DB?
+
+**Estimación:** 4 horas
+
+---
+
+### E6-US07: Fix de clasificación automática post-procesamiento
+**Como** usuario  
+**Quiero** que todas mis transacciones se clasifiquen automáticamente  
+**Para** no tener que hacerlo manualmente
+
+**Criterios de Aceptación:**
+- [ ] Revisar pipeline de clasificación completo
+- [ ] Asegurar que clasificación se ejecute después de ingesta
+- [ ] Verificar que reglas YAML se carguen correctamente
+- [ ] Verificar que LLM fallback funcione
+- [ ] Agregar flag `--classify` a comando `fin process`
+- [ ] Comando `fin classify --all` para re-clasificar todo
+- [ ] Logging de qué método clasificó cada transacción (regla/LLM)
+- [ ] Mostrar estadísticas de clasificación en output
+
+**Casos a Testear:**
+1. Transacción que matchea regla exacta
+2. Transacción que matchea merchant catalog
+3. Transacción que requiere LLM
+4. Transacción de intereses/comisiones (tipo especial)
+
+**Estimación:** 5 horas
+
+---
+
+### E6-US08: Optimización de performance de Ollama
+**Como** usuario  
+**Quiero** que el chat responda más rápido  
+**Para** usar el sistema sin frustración
+
+**Criterios de Aceptación:**
+- [ ] Investigar cuellos de botella en queries LLM
+- [ ] Implementar batching más eficiente (ajustar tamaño de batch)
+- [ ] Ajustar parámetros de timeout (actualmente 30s)
+- [ ] Reducir tamaño de contexto en prompts
+- [ ] Considerar modelo más ligero (qwen2.5:3b vs 7b actual)
+- [ ] Implementar cache de respuestas LLM (descripción → clasificación)
+- [ ] Agregar opción `--skip-llm` para clasificar solo con reglas
+- [ ] Documentar tiempos esperados según hardware
+
+**Optimizaciones a Evaluar:**
+1. **Prompt**: Reducir ejemplos, usar formato más compacto
+2. **Batch**: Probar 5, 10, 20 transacciones por request
+3. **Modelo**: Benchmark qwen2.5:3b vs 7b (velocidad vs precisión)
+4. **Cache**: SQLite table para (normalized_description, category, subcategory)
+5. **Parallelización**: Procesar múltiples batches si es seguro
+
+**Métricas Objetivo:**
+- Query simple chat: \< 15s (actual: ~30s)
+- Clasificación de 100 transacciones: \< 2 min
+- Memoria: \< 4GB RAM
+
+**Estimación:** 6 horas
+
+---
+
 ## Resumen de Estimaciones
 
 | Sprint | Épica | Horas Estimadas |
@@ -1029,8 +1140,9 @@ Generar reportes automáticos y pulir el sistema para uso real.
 | 4 | E3: Docs + Vectorización | 21 hrs |
 | 5 | E4: RAG + Chat | 20 hrs |
 | 6 | E5-E6: Reportes + Estabilización | 27 hrs |
+| 7 | E6: Estabilización Crítica | 21 hrs |
 
-**Total: ~142 horas** (~12 semanas × 10-12 hrs/semana)
+**Total: ~163 horas** (~14 semanas × 10-12 hrs/semana)
 
 ---
 
