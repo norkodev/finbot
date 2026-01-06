@@ -1137,12 +1137,18 @@ Los PDFs de Liverpool usan codificación no estándar que requiere OCR. Problema
 | 1 | E1: Ingesta (BBVA) | 34 hrs |
 | 2 | E1: Ingesta (HSBC + consultas) | 18 hrs |
 | 3 | E2: Clasificación | 22 hrs |
-| 4 | E3: Docs + Vectorización | 21 hrs |
-| 5 | E4: RAG + Chat | 20 hrs |
-| 6 | E5-E6: Reportes + Estabilización | 27 hrs |
-| 7 | E6: Estabilización Crítica | 21 hrs |
+| Sprint | Horas | Acumulado |
+|--------|-------|-----------|
+| Sprint 1 | 14h | 14h |
+| Sprint 2 | 16h | 30h |  
+| Sprint 3 | 18h | 48h |
+| Sprint 4 | 20h | 68h |
+| Sprint 5 | 24h | 92h |
+| Sprint 6 | 24h | 116h |
+| Sprint 7 | 47h | 163h |
+| Sprint 8 | 14h | 177h |
 
-**Total: ~163 horas** (~14 semanas × 10-12 hrs/semana)
+**Estimación total actualizada:** ~177 horas sobre 15 semanas × 10-12 hrs/semana)
 
 ---
 
@@ -1167,3 +1173,57 @@ Una historia está "Done" cuando:
 | ChromaDB consume mucha RAM | Baja | Medio | Monitorear, considerar SQLite-VSS como alternativa |
 | Clasificación muy imprecisa | Media | Alto | Priorizar corrección manual fácil, iterar en reglas |
 | Scope creep | Alta | Alto | Mantener backlog priorizado, decir "post-MVP" |
+---
+
+## Sprint 8 (Semana 15): Mejoras de Extractores y Reprocesamiento
+
+### Objetivo
+Completar la extracción de campos faltantes en extractores y agregar funcionalidad de reprocesamiento incremental para desarrollo.
+
+---
+
+### E6-US09: Completar extracción de campos en extractores
+**Como** usuario  
+**Quiero** que todos los extractores capturen minimum_payment y due_date correctamente  
+**Para** tener información completa de mis estados de cuenta
+
+**Criterios de Aceptación:**
+- [ ] Revisar y corregir patrón de minimum_payment en Banamex
+- [ ] Revisar y corregir patrón de minimum_payment en Banorte  
+- [ ] Revisar y corregir patrón de minimum_payment en HSBC
+- [ ] Revisar y corregir patrón de due_date en Banamex
+- [ ] Validar que TODOS los extractores extraigan estos campos
+- [ ] Crear tests unitarios para cada extractor
+
+**Estimación:** 6 horas
+- Diagnóstico de patrones: 2h
+- Corrección de extractores: 3h
+- Testing y validación: 1h
+
+---
+
+### E6-US10: Reprocesamiento incremental configurable
+**Como** desarrollador  
+**Quiero** poder reprocesar archivos y solo agregar nueva información  
+**Para** facilitar el desarrollo sin duplicar datos
+
+**Criterios de Aceptación:**
+- [ ] Agregar flag `--incremental` al comando process
+- [ ] Por defecto activo en desarrollo, desactivado en producción
+- [ ] Detectar cambios en archivos existentes (hash diferente)
+- [ ] Solo insertar transacciones/MSI que no existan ya
+- [ ] Actualizar statement si cambió
+- [ ] Documentar comportamiento en README.md
+
+**Contexto Técnico:**
+- Usar hash de archivo para detectar cambios
+- Comparar transacciones por (date, description, amount)
+- Opción para forzar reprocesamiento completo con `--force`
+
+**Estimación:** 8 horas
+- Diseño de lógica incremental: 2h
+- Implementación: 4h
+- Testing: 2h
+
+**Total Sprint 8:** 14 horas
+
