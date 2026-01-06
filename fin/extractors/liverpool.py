@@ -198,64 +198,70 @@ class LiverpoolCreditExtractor(BaseExtractor):
     def _extract_summary(self, text: str, statement: Statement):
         """Extract summary from Liverpool statement."""
         
-        # Period dates - Liverpool might use DD/MM/YYYY format
-        # Period dates - Liverpool might use DD/MM/YYYY or DD-MMM-YYYY
-        
         month_map = {
             'ENE': 1, 'FEB': 2, 'MAR': 3, 'ABR': 4, 'MAY': 5, 'JUN': 6,
             'JUL': 7, 'AGO': 8, 'SEP': 9, 'OCT': 10, 'NOV': 11, 'DIC': 12
         }
-
-        period_patterns = [
-            r'Periodo:?\s*(\d{2}/\d{2}/\d{4})\s*(?:al|a)\s*(\d{2}/\d{2}/\d{4})',
-            r'Del\s+(\d{2}/\d{2}/\d{4})\s+al\s+(\d{2}/\d{2}/\d{4})',
-            r'FECHA DE CORTE\s+(\d{2})-([A-Z]{3})-(\d{4})'
-        ]
-        for pattern in period_patterns:
-            match = re.search(pattern, text, re.I)
-            if match:
-                try:
-                    if len(match.groups()) == 3 and '-' in match.group(0): # Spanish date format
-                         day = int(match.group(1))
-                         month_str = match.group(2).upper()
-                         year = int(match.group(3))
-                         if month_str in month_map:
-                             statement.period_end = datetime(year, month_map[month_str], day).date()
-                             # Infer start date (approx 30 days before)
-                             from datetime import timedelta
-                             statement.period_start = statement.period_end - timedelta(days=30)
-                             break
-                    else:
-                        from datetime import datetime
-                        statement.period_start = datetime.strptime(match.group(1), '%d/%m/%Y').date()
-                        statement.period_end = datetime.strptime(match.group(2), '%d/%m/%Y').date()
-                        break
-                except:
-                    pass
         
-        # Payment amounts
-        payment_patterns = [
-            (r'[Pp]ago\s+(?:mínimo|minimo)[:\s]*\$?\s*([0-9,]+\.?\d*)', 'minimum_payment'),
-            (r'[Pp]ago\s+(?:total|para\s+no\s+generar)[:\s]*\$?\s*([0-9,]+\.?\d*)', 'payment_no_interest'),
-        ]
-        for pattern, field in payment_patterns:
-            match = re.search(pattern, text, re.I)
-            if match:
-                try:
-                    amount = parse_amount(match.group(1))
-                    setattr(statement, field, amount)
-                except:
-                    pass
+        # Due date - Liverpool format: "FECHA LÍMITE DE PAGO 06-ENE-2026"
+        due_date_match = re.search(r'FECHA\s+L[IÍ]MITE\s+DE\s+PAGO\s+(\d{2})-([A-Z]{3})-(\d{4})', text, re.I)
+        if due_date_match:
+            try:
+                day = int(due_date_match.group(1))
+                month_str = due_date_match.group(2).upper()
+                year = int(due_date_match.group(3))
+                if month_str in month_map:
+                    statement.due_date = datetime(year, month_map[month_str], day).date()
+                    logger.debug(f"Extracted due date: {statement.due_date}")
+                    
+                    # Infer period_end as approximately 25 days before due date
+                    # and period_start as 30 days before period_end
+                    from datetime import timedelta
+                    statement.period_end = statement.due_date - timedelta(days=25)
+                    statement.period_start = statement.period_end - timedelta(days=30)
+                    logger.debug(f"Inferred period: {statement.period_start} to {statement.period_end}")
+            except Exception as e:
+                logger.warning(f"Failed to parse due date: {e}")
         
-        # Account number (last 4 digits)
+        # Minimum payment - Liverpool format: "PAGO MÍNIMO + MESES SIN INTERESES ** 7,946.08"
+        # Try specific Liverpool pattern first
+        min_payment_match = re.search(r'PAGO\s+M[IÍ]NIMO\s+\+\s+MESES\s+SIN\s+INTERESES\s+\*\*\s+\$?\s*([0-9,]+\.?\d*)', text, re.I)
+        if min_payment_match:
+            try:
+                statement.minimum_payment = parse_amount(min_payment_match.group(1))
+                logger.debug(f"Extracted minimum payment: ${statement.minimum_payment}")
+            except Exception as e:
+                logger.warning(f"Failed to parse minimum payment: {e}")
+        
+        # Previous balance - "SALDO ANTERIOR 46,006.73"
+        prev_balance_match = re.search(r'SALDO\s+ANTERIOR\s+\$?\s*([0-9,]+\.?\d*)', text, re.I)
+        if prev_balance_match:
+            try:
+                statement.previous_balance = parse_amount(prev_balance_match.group(1))
+                logger.debug(f"Extracted previous balance: ${statement.previous_balance}")
+            except Exception as e:
+                logger.warning(f"Failed to parse previous balance: {e}")
+        
+        # Current balance/charges - "COMPRAS Y CARGOS 30,404.97"
+        charges_match = re.search(r'COMPRAS\s+Y\s+CARGOS\s+\$?\s*([0-9,]+\.?\d*)', text, re.I)
+        if charges_match:
+            try:
+                charges = parse_amount(charges_match.group(1))
+                statement.total_regular_charges = charges
+                logger.debug(f"Extracted charges: ${charges}")
+            except Exception as e:
+                logger.warning(f"Failed to parse charges: {e}")
+        
+        # Account number (last 4 digits) - "NO. DE CUENTA 4178490028453612"
         account_patterns = [
+            r'NO\.\s+DE\s+CUENTA\s+\d+(\d{4})',
             r'[Tt]arjeta[:\s]*[\*\d\s]*(\d{4})',
-            r'[Cc]uenta[:\s]*[\*\d\s]*(\d{4})',
         ]
         for pattern in account_patterns:
             match = re.search(pattern, text)
             if match:
                 statement.account_number = match.group(1)
+                logger.debug(f"Extracted account number: ****{statement.account_number}")
                 break
     
     def _extract_transactions(self, text: str, statement: Statement):
