@@ -88,10 +88,18 @@ class BanamexExtractor(BaseExtractor):
         if no_interest_match:
             statement.payment_no_interest = parse_amount(no_interest_match.group(1))
         
-        # "Pago mínimo: $1,250.00"
-        min_payment_match = re.search(r'Pago\s+mínimo:\s*\$?\s*([0-9,]+\.\d{2})', text, re.IGNORECASE)
+        # "Pago mínimo" - Multiple patterns
+        # Pattern 1: "CLABE Interbancaria Pago mínimo:4 $1,250.00" or "Pago mínimo: $1,250.00"
+        # Pattern 2: "El pago mínimo $1,250.00"
+        min_payment_match = re.search(r'(?:El\s+)?[Pp]ago\s+m[íi]nimo:?\s*\d*\s*\$?\s*([0-9,]+\.\d{2})', text, re.IGNORECASE)
         if min_payment_match:
             statement.minimum_payment = parse_amount(min_payment_match.group(1))
+        
+        # Extract due date - Banamex format varies
+        # Try to find "Fecha límite" or similar
+        due_match = re.search(r'Fecha\s+l[íi]mite.*?(\d{1,2}-[a-z]{3}-\d{4})', text, re.IGNORECASE)
+        if due_match:
+            statement.due_date = parse_spanish_date(due_match.group(1))
         
         # Extract account number (Número de tarjeta)
         # Format varies, try to get last 4 digits

@@ -98,8 +98,8 @@ class BanorteExtractor(BaseExtractor):
         if no_interest_match:
             statement.payment_no_interest = parse_amount(no_interest_match.group(1))
         
-        # "Pago mínimo: $4,450.00"
-        min_payment_match = re.search(r'Pago\s+mínimo:\s*\$?\s*([0-9,]+\.\d{2})', text, re.IGNORECASE)
+        # "Pago mínimo: $4,450.00" or "Pago mínimo:4 $4,450.00" (with reference number)  
+        min_payment_match = re.search(r'Pago\s+m[íi]nimo:\s*\d*\s*\$?\s*([0-9,]+\.?\d*)', text, re.IGNORECASE)
         if min_payment_match:
             statement.minimum_payment = parse_amount(min_payment_match.group(1))
         

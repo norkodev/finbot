@@ -88,8 +88,8 @@ class HSBCExtractor(BaseExtractor):
         if corte_match:
             statement.statement_date = parse_spanish_date(corte_match.group(1))
         
-        # Extract due date
-        due_match = re.search(r'Fecha\s+límite\s+de\s+pago:.*?(\d{1,2}-[A-Za-z]{3}-\d{4})', text, re.IGNORECASE)
+        # Extract due date - HSBC format may include day of week: "d) Fecha límite de pago: 1 sábado, 10-Ene-2026"
+        due_match = re.search(r'Fecha\s+l[íi]mite\s+de\s+pago:.*?(?:\d+\s+)?(?:\w+,\s+)?(\d{1,2}-[A-Za-z]{3}-\d{4})', text, re.IGNORECASE)
         if due_match:
             statement.due_date = parse_spanish_date(due_match.group(1))
         
@@ -99,8 +99,12 @@ class HSBCExtractor(BaseExtractor):
         if no_interest_match:
             statement.payment_no_interest = parse_amount(no_interest_match.group(1))
         
-        # "Pago mínimo : $ XX,XXX.XX"
-        min_payment_match = re.search(r'Pago\s+mínimo\s*:\s*\$?\s*([\d,]+\.\d{2})', text, re.IGNORECASE)
+        # "Pago mínimo" - HSBC format: "g) Pago mínimo : 4 $ 2,721.44"
+        # May have letter prefix, extra spaces, and number before amount
+        min_payment_match = re.search(r'[a-z]\)\s+Pago\s+m[íi]nimo\s*:\s*\d*\s*\$?\s*([\d,]+\.\d{2})', text, re.IGNORECASE)
+        if not min_payment_match:
+            # Fallback to simpler pattern
+            min_payment_match = re.search(r'Pago\s+m[íi]nimo\s*:\s*\d*\s*\$?\s*([\d,]+\.\d{2})', text, re.IGNORECASE)
         if min_payment_match:
             statement.minimum_payment = parse_amount(min_payment_match.group(1))
         
